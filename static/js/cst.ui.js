@@ -9,6 +9,7 @@ cst.ui = (function ($) {
 			users: '#users',
 			init: '#init',
 			working: '#working',
+			waiting: '#waiting',
 			go: '#go',
 			goButton: '#goButton',
 			instructions: '#instructions',
@@ -69,6 +70,7 @@ cst.ui = (function ($) {
 			cst.state.data({ consentGiven: true });
 			$(config.consent).hide();
 			$(config.generalInstructions).show();
+
 		});
 		
 		$(config.begin).click(function(e){
@@ -83,6 +85,7 @@ cst.ui = (function ($) {
 			}
 					
 			$(config.generalInstructions).hide();
+			$(config.waiting).show();
 		});
 		
 	};
@@ -93,6 +96,7 @@ cst.ui = (function ($) {
 				$users = $(config.users),
 				usersOn = cst.event.usersOn(),
 				uclass = '',
+				userpic = '',
 				username='';
 
 		$users.show().empty();
@@ -112,11 +116,13 @@ cst.ui = (function ($) {
 				if(v == cst.state.data().mySeat){
 					uclass = 'me';
 					username=cst.state.data().userName;
+					userpic=cst.state.data().userPic;
 				}else{
 					uclass='';
 					username=cst.state.data().partnerName;
+					userpic=cst.state.data().partnerPic;
 				}
-				$users.append('<span class="' + uclass + '">' + showrole.toTitleCase() + renderUser(username) + '</span>');
+				$users.append('<span class="' + uclass + '">' + showrole.toTitleCase() + renderUser(username,userpic) + '</span>');
 			});
 		}
 		
@@ -124,13 +130,15 @@ cst.ui = (function ($) {
 		
 		if (cst.state.status() == 'sessionInit' && cst.event.everybodyOn() && cst.state.data()['consentGiven'] && cst.state.data()['beginClicked']){
 			$initButton.show();
+			$(config.waiting).hide();
 		}else{
 			$initButton.hide();
 		}
 	}
 	
 	//just a filler for now
-	var renderUser = function(username){
+	var renderUser = function(username,userpic){
+		//return '(' + username + ')' + '<br /><img src="' + userpic + '" class="userpic"/>)';
 		return '(' + username + ')';
 	}
 	
@@ -169,6 +177,7 @@ cst.ui = (function ($) {
 		console.log('ui Status:');
 		console.log(cst.state.data());
 		//debugger;
+		//This returns us to the beginning???
 		if ((state.status() == 'systemInit' || state.status() == 'sessionInit') && state.theirStatus() == 'sendSuccess'){
 			document.location = './' + document.location.search;
 		}
@@ -252,7 +261,6 @@ cst.ui = (function ($) {
 		if (state.isStatus(['taskStart', 'speakerGo']) && cst.state.data().taskId != 0){
 			initInstructions(cst.state.data().taskId);
 			$(config.instructions).show();
-			
 			$(config.cancel).show();
 			$(config.restart).show();
 			if (cst.state.data().mySeat == 'teacher'){
@@ -266,6 +274,9 @@ cst.ui = (function ($) {
 				$(config.quit).hide();
 			}
 		}
+		if(cst.state.data().taskId > 0){
+			$(config.waiting).hide();
+		}
 	};
 	
 	var testInit = function(state){
@@ -277,6 +288,7 @@ cst.ui = (function ($) {
 					// .....
 					$(config.initButton).click(cst.initHandler);
 					//call this as a last ditch for the init button, just in case we missed pusher's update.
+					$(config.waiting).show();
 					presenceChange();
 					$(config.init).show();
 				}else if (cst.state.status() == 'sessionInit' && cst.state.data().mySeat == 'student'){
@@ -289,6 +301,7 @@ cst.ui = (function ($) {
 					
 					//in the end call this jsut to update user pic and name. 
 					presenceChange();
+					$(config.waiting).hide();
 					$(config.generalInstructions).show();
 				}else{
 					$(config.init).hide();
@@ -311,12 +324,14 @@ cst.ui = (function ($) {
 					
 					$(config.initButton).click(cst.initHandler);
 					//call this as a last ditch for the init button, just in case we missed pusher's update.
+					$(config.waiting).show();
 					presenceChange();
 					$(config.init).show();
 				}else if (cst.state.status() == 'sessionInit' && cst.state.data().mySeat == 'student' && !cst.state.data().consentGiven){
 					$(config.init).hide();
+					$(config.waiting).hide();
 					$(config.consent).show();
-					//in the end call this jsut to update user pic and name. 
+					//in the end called this jsut to update user pic and name. 
 					presenceChange();
 				}else{
 					$(config.init).hide();

@@ -12,6 +12,7 @@
 	<link rel="stylesheet" href="/static/css/layout.css<%=cacheKey%>" type="text/css" media="screen" charset="utf-8">
 	<link rel="stylesheet" href="/static/css/jplayer.css<%=cacheKey%>" type="text/css" />
 	<link rel="stylesheet" href="/static/css/taskTypes.css<%=cacheKey%>" type="text/css" media="screen" charset="utf-8">
+	<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
 	<script type="text/javascript" src="/static/js/jquery.js"></script>
 	<script type="text/javascript" src="/static/js/socket.io.js"></script>
 	<script type="text/javascript" src="/static/js/purl.js"></script>
@@ -73,6 +74,7 @@
 		<a id="cancel" href="javascript:;" style="display: none;">Cancel</a>
 		<a id="quit" href="javascript:;" style="display: none;">Quit</a>
 		<a id="timer" style="display: none;"></a> 
+		<div id="waiting" style="display: block;"><i class="fa fa-spinner fa-pulse fa-5x"></i><div>waiting for partner</div></div> 
 		<div id="users">Loading...</div> 
 		<div id="instructions" style="display: none;"></div>
 		<div id="working" style="display: none;">Something's up<span id="dot3"></span></div>
@@ -83,7 +85,7 @@
 		<div id="answers" style="display: none;"></div>
 		<div id="error" style="display: none;"></div>
 		<div id="thanks" style="display: none;">
-			<h1>Thank you for taking our test.</h1>
+			<h1>Thank you.</h1>
 			<p id="sending" class="status">Sending Your Results...</p>
 			<p id="sendSuccess" class="status">Results Sent!</p>
 			<pre id="successDetail" class="status"></pre>

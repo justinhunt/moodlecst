@@ -60,6 +60,34 @@ cst.tasks.picture = (function ($) {
 	};
 } (jQuery));
 
+cst.tasks.translate = (function ($) {
+	"use strict";
+
+	// Private
+	var initQuestion = function($question, qData){
+		$question.empty();
+		var qhtml = '<div id="qTranslate" class="questionTranslateSource">' + qData.content.source + '</div>';
+		qhtml += '<div id="qTranslate" class="questionTranslateTarget">' + qData.content.target + '</div>';
+		$question.html(qhtml);
+	};
+	
+	var initAnswers = function($answers, qData){
+		$(qData.answers).each(function(i, x){
+			//$answers.append('<a href="javascript:;" data-id="' + x.id + '"><img id="q1Img" class="questionImage" src="' + x.img + '"/></a>');	
+			//var answerhtml='<div id="qTranslate" class="questionTranslate">' + x.text + '</div><br />';
+			var answerhtml = '<a href="javascript:;" data-id="' + x.id + '">Done</a>';
+			$answers.append(answerhtml);
+		});
+		
+	};
+	
+	// Public
+	return { // { must be on same line as return else semicolon gets inserted
+		initQuestion: initQuestion,
+		initAnswers: initAnswers
+	};
+} (jQuery));
+
 /*
 cst.tasks.taboo = (function ($) {
 	"use strict";
