@@ -139,6 +139,8 @@ cst.state = (function ($) {
 				return (typeof v.correct !== 'undefined' && v.correct == true);
 			})[0];
 		}
+		//this is a hack ... need to assign correct better for some tasks
+		isCorrect=true;
 		if (typeof taskAnswer != 'undefined'){
 			isCorrect = (taskAnswer.id == answerId);
 		}
