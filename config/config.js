@@ -53,12 +53,12 @@
 	"Translate": {
 		"Descriptions" : {
 			"Respondent" : [ 
-				"相手の英語を聞いて、正しく通訳できた時点で、「Done」のボタンをタッチして下さい。",
-				"Please touch the \"Done\" button below when you have correctly translated the speaker's English." 
+				"相手の言うことを聞いて、正しく通訳できた時点で、「Done」のボタンをタッチして下さい。",
+				"Please touch the \"Done\" button below when you have correctly translated the speaker said." 
 			],
 			"Speaker" : [
-				"相手に次の英語の分を言って、相手が正しく通訳できたら、相手に教えてあげて下さい。「Go」のボタンをタッチして、始めて下さい。",
-				"Please read the English below to your partner. When your partner has translated the word, tell him/her. Touch \"Go\" to begin."
+				"相手に次の分を言って、相手が正しく通訳できたら、相手に教えてあげて下さい。「Go」のボタンをタッチして、始めて下さい。",
+				"Please read the sentence below to your partner. When your partner has translated the word, tell him/her. Touch \"Go\" to begin."
 			]
 		}
 	}
