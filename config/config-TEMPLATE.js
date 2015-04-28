@@ -1,7 +1,7 @@
 {
 "options": {
-	"socketHost" : "http://m27.poodll.com:8081",
-	"moodleUrl" : "http://m27.poodll.com"
+	"socketHost" : "http://my.moodleserver.com:8081",
+	"moodleUrl" : "http://my.moodleserver.com"
 },
 "seats": {
 	"Student" : {
@@ -54,7 +54,7 @@
 		"Descriptions" : {
 			"Respondent" : [ 
 				"相手の言うことを聞いて、正しく通訳できた時点で、「Done」のボタンをタッチして下さい。",
-				"Please touch the \"Done\" button below when you have correctly translated the speaker said." 
+				"Please touch the \"Done\" button below when you have correctly translated what the speaker said." 
 			],
 			"Speaker" : [
 				"相手に次の分を言って、相手が正しく通訳できたら、相手に教えてあげて下さい。「Go」のボタンをタッチして、始めて下さい。",
