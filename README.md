@@ -9,14 +9,19 @@ It is not particularly secure yet, though it will be hardened in the near future
 The application and source code are all available at the [github repository for MoodleCST.](https://github.com/justinhunt/moodlecst)
 If you know how to install by cloning a github repository, that is the recommended method. Otherwise a zip file is available from there.
 You can expand it and upload it to a suitable location on your server. The recommended location is within a folder called "cst" in the MoodleCST Moodle plugin. 
-So the final location would be: [PATH TO MOODLE]/mod/moodlecst/cst/
+So the final location would be: 
+...
+[PATH TO MOODLE]/mod/moodlecst/cst/
+...
 
 ## Setting Up MoodleCST
 MoodleCST requires [Node.js](https://nodejs.org/) . Make sure you get and install that before going any further.  
-You need to tell the Node.js app the URL for your Moodle server. This is done in two places
+You need to tell the Node.js app the URL for your Moodle server. This is done in two places:
+
+...
 [PATH TO MOODLE]/mod/moodlecst/cst/config/config.js
-and
 [PATH TO MOODLE]/mod/moodlecst/cst/appconfig.js
+...
 
 These files don't exist until you creat them. However a template for each is included with the distribution.
 So copy and rename config-TEMPLATE.js to config.js, and appconfig-TEMPLATE.js to appconfig.js.
@@ -29,9 +34,7 @@ By default the MoodleCST app listens in ports 8081 (socket server) and 8082 (web
 
 If you don't have it installed already, install [Node.js](https://nodejs.org/) .
 From the Moodle MoodleCST activity, as a teacher there is a "Node Server" tab. You can start/stop the Node.js server from there.
-If you prefer to start/stop it manually this can be done from 
-
-From the MoodleCST app's root folder, via the following command:
+If you prefer to start/stop it manually, from the MoodleCST app's root folder isue the following command:
 ```
 node app.js
 ```

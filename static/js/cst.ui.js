@@ -256,33 +256,33 @@ cst.ui = (function ($) {
 		};
 	};
 	
-	
+	//changed all refs of cst.state here to state.data J 20150430
 	var instructions = function(state){
-		if (state.isStatus(['taskStart', 'speakerGo']) && cst.state.data().taskId != 0){
-			initInstructions(cst.state.data().taskId);
+		if (state.isStatus(['taskStart', 'speakerGo']) && state.data().taskId != 0){
+			initInstructions(state.data().taskId);
 			$(config.instructions).show();
 			$(config.cancel).show();
 			$(config.restart).show();
-			if (cst.state.data().mySeat == 'teacher'){
+			if (state.data().mySeat == 'teacher'){
 				$(config.quit).show();
 			}
 		}else{
 			$(config.instructions).hide();
 			$(config.cancel).hide();
 			$(config.restart).hide();
-			if (cst.state.data().mySeat == 'teacher'){
+			if (state.data().mySeat == 'teacher'){
 				$(config.quit).hide();
 			}
 		}
-		if(cst.state.data().taskId > 0){
+		if(state.data().taskId > 0){
 			$(config.waiting).hide();
 		}
 	};
-	
+	//changed all refs of cst.state here to state.data J 20150430
 	var testInit = function(state){
-		switch(cst.state.data().mode){
+		switch(state.data().mode){
 			case 'studentstudent':
-				if (cst.state.status() == 'sessionInit' && cst.state.data().mySeat == 'teacher'){
+				if (state.status() == 'sessionInit' && state.data().mySeat == 'teacher'){
 					//start on "teacher" go button
 					//we might to insert teacher instructions here
 					// .....
@@ -291,7 +291,7 @@ cst.ui = (function ($) {
 					$(config.waiting).show();
 					presenceChange();
 					$(config.init).show();
-				}else if (cst.state.status() == 'sessionInit' && cst.state.data().mySeat == 'student'){
+				}else if (state.status() == 'sessionInit' && state.data().mySeat == 'student'){
 					$(config.init).hide();
 					//at this point we would like to imply consent, rather then show a form, but ..
 					//BUT NEVER EVER call state.data from a callback that fires on state.data
@@ -310,7 +310,7 @@ cst.ui = (function ($) {
 				
 			case 'teacherstudent':
 			default:
-				if (cst.state.status() == 'sessionInit' && cst.state.data().mySeat == 'teacher'){
+				if (state.status() == 'sessionInit' && state.data().mySeat == 'teacher'){
 					
 					//we do not need these in the new Moodle era
 					/*
@@ -327,7 +327,7 @@ cst.ui = (function ($) {
 					$(config.waiting).show();
 					presenceChange();
 					$(config.init).show();
-				}else if (cst.state.status() == 'sessionInit' && cst.state.data().mySeat == 'student' && !cst.state.data().consentGiven){
+				}else if (state.status() == 'sessionInit' && state.data().mySeat == 'student' && !state.data().consentGiven){
 					$(config.init).hide();
 					$(config.waiting).hide();
 					$(config.consent).show();
