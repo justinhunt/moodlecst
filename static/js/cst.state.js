@@ -28,9 +28,12 @@ cst.state = (function ($) {
 			partnerPic: '',
 			activityId: 0,
 			mode: 0,
+			clickedAnswerItem: '',
+			clickedQuestionItem: ''
 		},
 		output = [],
 		callbacks = $.Callbacks('unique');
+		messageCallbacks = $.Callbacks('unique');
 	
 	var syncData = function(){
 		return {
@@ -46,7 +49,9 @@ cst.state = (function ($) {
 			sharedStat: data.sharedStat,
 			studentLatency: data.studentLatency,
 			consentGiven: data.consentGiven,
-			beginClicked: data.beginClicked
+			beginClicked: data.beginClicked,
+			clickedAnswerItem: data.clickedAnswerItem,
+			clickedQuestionItem: data.clickedQuestionItem
 		};
 	};
 	
@@ -119,9 +124,21 @@ cst.state = (function ($) {
 		return data;
 	};
 	
+	var sendMessage = function(message){
+		if (message){
+			if (!$.isEmptyObject(message)){
+				cst.event.sendMessage(message);
+			}
+		}
+	};
+	
 	var emergencySync = function(){
 		cst.event.syncStatus(syncData());
 		callbacks.fire(this);
+	};
+	
+	var fireMessage = function(messagedata){
+		messageCallbacks.fire(messagedata);
 	};
 	
 	
@@ -129,6 +146,7 @@ cst.state = (function ($) {
 		
 		var currentTask,
 			taskAnswer,
+			answer,
 			answer,
 			isCorrect;
 
@@ -264,7 +282,8 @@ cst.state = (function ($) {
 		isStatus: isStatus,
 		clearOutput: clearOutput,
 		getOutput: getOutput,
-		emergencySync: emergencySync
+		emergencySync: emergencySync,
+		message: fireMessage
 	};
 } (jQuery));
 

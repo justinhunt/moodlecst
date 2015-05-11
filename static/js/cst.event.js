@@ -130,6 +130,16 @@ cst.event = (function ($) {
 		}
 	};
 	
+	var newMessage = function(data){
+		var d = $.parseJSON(data);
+		//send data to state and skip syncing
+		if (d.from != cst.state.uniqueId()){
+			//cst.state.data(d.data,true);
+			//dosomething with this message
+			cst.state.message(d.data);
+		}
+	};
+	
 	var wrapper = function(data){
 		return { "from": cst.state.uniqueId(), "data": data };
 	};
@@ -142,6 +152,18 @@ cst.event = (function ($) {
 				room: cst.state.data().channel,
 				seat: cst.state.data().mySeat,
 				syncPayload: JSON.stringify(d)
+			}
+		); 
+	};
+	
+	var sendMessage = function(data){
+		var d = wrapper(data);
+		cst.event.socket().emit(
+			'newMessage', 
+			{ 
+				room: cst.state.data().channel,
+				seat: cst.state.data().mySeat,
+				messagePayload: JSON.stringify(d)
 			}
 		); 
 	};

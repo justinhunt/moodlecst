@@ -48,7 +48,7 @@ cst.tasks.picture = (function ($) {
 	
 	var initAnswers = function($answers, qData){
 		$(qData.answers).each(function(i, x){
-			$answers.append('<a href="javascript:;" data-id="' + x.id + '"><img id="q1Img" class="questionImage" src="' + x.img + '"/></a>');
+			$answers.append('<a class="answeritem" href="javascript:;" data-id="' + x.id + '"><img id="q1Img" class="questionImage" src="' + x.img + '"/></a>');
 		});
 		
 	};
@@ -66,8 +66,10 @@ cst.tasks.translate = (function ($) {
 	// Private
 	var initQuestion = function($question, qData){
 		$question.empty();
-		var qhtml = '<div id="qTranslate" class="questionTranslateSource">' + qData.content.source + '</div>';
-		qhtml += '<div id="qTranslate" class="questionTranslateTarget">' + qData.content.target + '</div>';
+		var qhtml = '<div id="qTranslateSource" class="questionTranslateSource">' + qData.content.source + '</div>';
+		qhtml += '<div id="qTranslateTarget" class="questionTranslateTarget">' + qData.content.target + '</div>';
+		qhtml += '<a id="qTranslateHint" name="hintbutton" class="clickable">Show Hint</a>'; 
+		qhtml +=  '<a id="qTranslateDone" name="donebutton" class="clickable">Done</a>';
 		$question.html(qhtml);
 	};
 	
@@ -75,16 +77,62 @@ cst.tasks.translate = (function ($) {
 		$(qData.answers).each(function(i, x){
 			//$answers.append('<a href="javascript:;" data-id="' + x.id + '"><img id="q1Img" class="questionImage" src="' + x.img + '"/></a>');	
 			//var answerhtml='<div id="qTranslate" class="questionTranslate">' + x.text + '</div><br />';
-			var answerhtml = '<a href="javascript:;" data-id="' + x.id + '">Done</a>';
+			var answerhtml = '<div id="qTranslateSource" class="questionTranslateSource" style="display: none">' + qData.content.source + '</div>';
+			answerhtml += 
 			$answers.append(answerhtml);
 		});
 		
 	};
 	
+	var answerCallback = function(state){
+	
+		//exit on events we are not interested in
+		//state.myHat() === 'Receptive' ||
+		if(typeof state.data().clickedQuestionItem ==='undefined' || state.data().clickedQuestionItem == ''){return;}
+		var item = state.data().clickedQuestionItem;
+		switch(item){
+			case 'hintbutton':
+				if(state.data().mySeat === 'teacher'){
+					console.log('hintbutton clicked HERE');
+					$('#qTranslateHint').hide();
+				}else{
+					console.log('hintbutton clicked over there');
+					$('#qTranslateSource').show();
+				}
+				break;
+			case 'donebutton':
+				if(state.data().mySeat === 'student'){
+					console.log('donebutton clicked over there');
+					state.data({ taskEnd:cst.timer.getTime()});
+					$('#answers').fadeOut('slow', function(){
+						state.takeAnswer(1);
+					});
+				}
+				break;
+			default:
+				console.log('another clickable clicked: ' + item);
+		}
+		//clear it
+		state.data({clickedQuestionItem: ''},true);
+	};
+	
+	var  questionCallback = function(state){
+		
+		//exit on events we are not interested in
+		//state.myHat() === 'Productive' ||
+		
+		if(state.data().mySeat === 'student' || typeof state.data().clickedAnswerItem ==='undefined' || state.data().clickedAnswerItem == ''){return;}
+		
+		state.data({clickedAnswerItem: ''},true);
+	};
+	
+	
 	// Public
 	return { // { must be on same line as return else semicolon gets inserted
 		initQuestion: initQuestion,
-		initAnswers: initAnswers
+		initAnswers: initAnswers,
+		answerCallback: answerCallback,
+		questionCallback: questionCallback
 	};
 } (jQuery));
 
@@ -113,4 +161,3 @@ cst.tasks.taboo = (function ($) {
 	};
 } (jQuery));
 */
-

@@ -36,6 +36,7 @@ cst.ui = (function ($) {
 		cst.state.callbacks.add(question);
 		cst.state.callbacks.add(answers);
 		cst.state.callbacks.add(status);
+		cst.state.callbacks.add(slidepairCallback);
 		cst.event.pusherCallbacks.add(workingChange);
 		cst.event.presenceChanges.add(presenceChange);
 		cst.timer.tickCallbacks.add(timerTick);
@@ -376,6 +377,8 @@ cst.ui = (function ($) {
 		}
 	};
 	
+	
+	
 	var answers = function(state){
 		if (state.status() == 'taskStart' && state.myHat() == "Respondent"){
 			initAnswers(state.data().taskId);
@@ -387,6 +390,24 @@ cst.ui = (function ($) {
 			$(config.answers).hide();
 		}
 	};
+	
+	//for within slide events
+	var slidepairCallback = function(state){
+		var tid = state.data().taskId;
+		if(tid==0){return;}
+		var qData = cst.test.getTaskById(state.data().taskId);
+		if (qData){
+			if (typeof cst.tasks[qData.subType.toLowerCase()] !== 'undefined'){
+				if(typeof cst.tasks[qData.subType.toLowerCase()].answerCallback !== 'undefined'){
+					cst.tasks[qData.subType.toLowerCase()].answerCallback(state);
+				}
+				if(typeof cst.tasks[qData.subType.toLowerCase()].questionCallback !== 'undefined'){
+					cst.tasks[qData.subType.toLowerCase()].questionCallback(state);
+				}
+			}
+		}
+	};
+
 	
 	var initGoButton = function(){
 		var 	$go = $(config.go),
@@ -440,9 +461,8 @@ cst.ui = (function ($) {
 		}else{
 			console.log('instruction init: no qData or no qData type');
 		}
-	}
-	
-	
+	};
+
 	
 	var initQuestion = function(qId){
 		var $question = $(config.question);
@@ -450,10 +470,11 @@ cst.ui = (function ($) {
 		var qData = cst.test.getTaskById(qId);
 		
 		if (qData){
-			$question.removeClass(cst.config.taskTypeNames()).addClass(qData.subType);
-			if (typeof cst.tasks[qData.subType.toLowerCase()] !== 'undefined' && 
-				typeof cst.tasks[qData.subType.toLowerCase()].initQuestion !== 'undefined'){
-				cst.tasks[qData.subType.toLowerCase()].initQuestion($question, qData);
+			var subType = qData.subType.toLowerCase();
+			$question.removeClass(cst.config.taskTypeNames()).addClass(subType);
+			if (typeof cst.tasks[subType] !== 'undefined' && 
+				typeof cst.tasks[subType].initQuestion !== 'undefined'){
+				cst.tasks[subType].initQuestion($question, qData);
 			}else{
 				$question.html(qData.content);
 			}
@@ -462,11 +483,16 @@ cst.ui = (function ($) {
 			throw "initQuestion looked for a taskById and got nothin."
 		}
 		
+		
+		$(config.question + ' .clickable').on('click',function(){
+				cst.state.data({clickedQuestionItem: this.name});
+				});
+		
 		//break out another js object for questions?  factor in tasktypes..
 	};
 	
 	var initAnswers = function(qId){
-		var 	$answers = $(config.answers);
+		var $answers = $(config.answers);
 		
 		$answers.empty().show();
 		
@@ -474,17 +500,21 @@ cst.ui = (function ($) {
 		
 		if (qData){
 			$answers.removeClass(cst.config.taskTypeNames()).addClass(qData.subType);
-		
-			if (typeof cst.tasks[qData.subType.toLowerCase()] !== 'undefined' && 
-				typeof cst.tasks[qData.subType.toLowerCase()].initAnswers !== 'undefined'){
-				cst.tasks[qData.subType.toLowerCase()].initAnswers($answers, qData);
+			var subType = qData.subType.toLowerCase();
+			if (typeof cst.tasks[subType] !== 'undefined' && 
+				typeof cst.tasks[subType].initAnswers !== 'undefined'){
+				cst.tasks[subType].initAnswers($answers, qData);
 			}else{
 				$(qData.answers).each(function(i, x){
-					$answers.append('<a href="javascript:;" data-id="' + x.id + '">' + x.text + '</a>');
+					$answers.append('<a class="answeritem" href="javascript:;" data-id="' + x.id + '">' + x.text + '</a>');
 				});
 			}
 		
-			$(config.answers + ' a').one('click',takeAnswer);
+			$(config.answers + ' .answeritem').one('click',takeAnswer);
+			$(config.answers + ' .clickable').on('click',function(){
+				cst.state.data({clickedAnswerItem: this.name});
+				});
+		
 		}else{
 			throw "initAnswers looked for a taskById and got nothin."
 		}
@@ -519,6 +549,6 @@ cst.ui = (function ($) {
 		init: init,
 		working: working
 	};
-} (jQuery));
+} (jQuery))
 
 

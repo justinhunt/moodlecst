@@ -189,6 +189,10 @@ console.log('roomname:' + roomname);
 		io.sockets.in(data.room).emit('stateChange', data.syncPayload);
 	});
 	
+	socket.on('newMessage', function (data) {
+		io.sockets.in(data.room).emit('newMessage', data.messagePayload);
+	});
+	
 	socket.on('reset', function (data){
 		io.sockets.clients().forEach(function(s){
 			if (s.seat == 'student' && s.room == socket.room){
