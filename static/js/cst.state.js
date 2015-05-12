@@ -9,6 +9,7 @@ cst.state = (function ($) {
 			raterId: 0,			//sync
 			studentId: 0,		//sync
 			testId: 0,
+			previousTaskId: 0,	
 			taskId: 0,			//sync	//questionpop
 			taskStart: 0,			//sync
 			taskEnd: 0,			//sync
@@ -28,9 +29,12 @@ cst.state = (function ($) {
 			partnerPic: '',
 			activityId: 0,
 			mode: 0,
+			clickedAnswerItem: '',
+			clickedQuestionItem: ''
 		},
 		output = [],
-		callbacks = $.Callbacks('unique');
+		callbacks = $.Callbacks('unique'),
+		messageCallbacks = $.Callbacks('unique');
 	
 	var syncData = function(){
 		return {
@@ -46,7 +50,9 @@ cst.state = (function ($) {
 			sharedStat: data.sharedStat,
 			studentLatency: data.studentLatency,
 			consentGiven: data.consentGiven,
-			beginClicked: data.beginClicked
+			beginClicked: data.beginClicked,
+			clickedAnswerItem: data.clickedAnswerItem,
+			clickedQuestionItem: data.clickedQuestionItem
 		};
 	};
 	
@@ -119,18 +125,31 @@ cst.state = (function ($) {
 		return data;
 	};
 	
+	var sendMessage = function(message){
+		if (message){
+			if (!$.isEmptyObject(message)){
+				cst.event.sendMessage(message);
+			}
+		}
+	};
+	
 	var emergencySync = function(){
 		cst.event.syncStatus(syncData());
 		callbacks.fire(this);
 	};
 	
+	var fireMessage = function(messagedata){
+		messageCallbacks.fire(messagedata);
+	};
+	
 	
 	var takeAnswer = function(answerId){
-		
 		var currentTask,
 			taskAnswer,
 			answer,
-			isCorrect;
+			answer,
+			isCorrect,
+			currentTaskId;
 
 		currentTask  = cst.test.getTaskById(cst.state.data().taskId);	
 			
@@ -138,7 +157,12 @@ cst.state = (function ($) {
 			taskAnswer = $.grep(currentTask.answers, function(v, k){
 				return (typeof v.correct !== 'undefined' && v.correct == true);
 			})[0];
+			currentTaskId = currentTask.id;
+		}else{
+			currentTaskId=0;
 		}
+		
+		
 		//this is a hack ... need to assign correct better for some tasks
 		isCorrect=true;
 		if (typeof taskAnswer != 'undefined'){
@@ -153,9 +177,12 @@ cst.state = (function ($) {
 		//set answered, for callbacks
 		cst.state.data({ sharedStat: 'answered'}, true);
 		
+		//move to next task
 		var task = cst.test.nextTask();
 		if (task){
-			cst.state.data({ 
+			//push the state change
+			cst.state.data({
+				previousTaskId: currentTaskId,
 				taskId: task.id,
 				sharedStat: 'taskStart',
 				studentStat: '',
@@ -255,6 +282,7 @@ cst.state = (function ($) {
 		fetchMoodleData: fetchMoodleData,
 		syncData: syncData,
 		callbacks: callbacks,
+		messageCallbacks: messageCallbacks,
 		takeAnswer: takeAnswer,
 		myHat: myHat,
 		uniqueId: uniqueId,
@@ -264,7 +292,9 @@ cst.state = (function ($) {
 		isStatus: isStatus,
 		clearOutput: clearOutput,
 		getOutput: getOutput,
-		emergencySync: emergencySync
+		emergencySync: emergencySync,
+		fireMessage: fireMessage,
+		sendMessage: sendMessage
 	};
 } (jQuery));
 
