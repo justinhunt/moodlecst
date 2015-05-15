@@ -1,5 +1,5 @@
-#question.Picture img,
-#answers.Picture img{
+#question.picture img,
+#answers.picture img{
 	display: block;
 	max-width: 300px;
 	max-height: 300px;
@@ -7,25 +7,25 @@
 	margin-right: auto;
 }
 
-#answers.Picture a{
+#answers.picture a{
 	width: 40%;
 	float: left;
 }
-#answers.Picture img{
+#answers.picture img{
 	max-width: 150px;
 	max-height: 150px;
 }
 
 
-#question.Taboo{
+#question.taboo{
 	text-align: center;
 	font-weight: bold;
 }
 
-#question.Listen{
+#question.listen{
 	text-align: center;
 }
-#question.Listen #jpUI{
+#question.listen #jpUI{
 	width: 420px;
 	margin: auto;
 	background-color: black;
@@ -33,16 +33,16 @@
 	padding: 1em;
 }
 
-#answers.Listen a{
+#answers.listen a{
 	width: 40%;
 	float: left;
 }
 
-#answers.Listen a p{
+#answers.listen a p{
 	font-size: .5em;
 	
 }
-#answers.Listen a p strong{
+#answers.listen a p strong{
 	font-size: 1em;
 	
 }

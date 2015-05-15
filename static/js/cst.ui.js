@@ -32,11 +32,11 @@ cst.ui = (function ($) {
 	var init = function(){
 		console.log('cst.ui init...');
 		cst.state.callbacks.add(testInit);
-		cst.state.callbacks.add(instructions);
+		//cst.state.callbacks.add(instructions);
 		cst.state.callbacks.add(question);
 		cst.state.callbacks.add(answers);
 		cst.state.callbacks.add(status);
-		cst.state.callbacks.add(slidepairCallback);
+	//	cst.state.callbacks.add(slidepairCallback);
 		cst.event.pusherCallbacks.add(workingChange);
 		cst.event.presenceChanges.add(presenceChange);
 		cst.timer.tickCallbacks.add(timerTick);
@@ -177,7 +177,6 @@ cst.ui = (function ($) {
 		
 		console.log('ui Status:');
 		console.log(cst.state.data());
-		//debugger;
 		//This returns us to the beginning???
 		if ((state.status() == 'systemInit' || state.status() == 'sessionInit') && state.theirStatus() == 'sendSuccess'){
 			document.location = './' + document.location.search;
@@ -185,6 +184,12 @@ cst.ui = (function ($) {
 	
 		
 		if (state.status() == 'done'){
+		
+			//later do this better
+			$(config.instructions).hide();
+			$(config.question).hide();
+			$(config.answers).hide();
+		
 			$thanks.find('.status, #reset').hide();
 			$thanks.show();
 			$thanks.find('#failDetail').html('');
@@ -257,6 +262,35 @@ cst.ui = (function ($) {
 		};
 	};
 	
+	
+	//changed all refs of cst.state here to state.data J 20150430
+	var startInstructions = function(taskId, seat){
+		initInstructions(taskId);
+		$(config.instructions).show();
+		$(config.cancel).show();
+		$(config.restart).show();
+		if (seat == 'teacher'){
+			$(config.quit).show();
+		}
+		if(taskId > 0){
+			$(config.waiting).hide();
+		}
+	}
+	
+	//changed all refs of cst.state here to state.data J 20150430
+	var stopInstructions = function(taskId, seat){
+		$(config.instructions).hide();
+		$(config.cancel).hide();
+		$(config.restart).hide();
+		if (seat == 'teacher'){
+			$(config.quit).hide();
+		}
+		if(taskId > 0){
+			$(config.waiting).hide();
+		}
+	}
+
+	
 	//changed all refs of cst.state here to state.data J 20150430
 	var instructions = function(state){
 		if (state.isStatus(['taskStart', 'speakerGo']) && state.data().taskId != 0){
@@ -279,6 +313,7 @@ cst.ui = (function ($) {
 			$(config.waiting).hide();
 		}
 	};
+	
 	//changed all refs of cst.state here to state.data J 20150430
 	var testInit = function(state){
 		switch(state.data().mode){
@@ -358,6 +393,32 @@ cst.ui = (function ($) {
 	
 	//generally run based on a callback from state changes.
 	var question = function(state){
+		
+		//if not initing task, return without doing anything
+		if (state.status() !== 'taskStart'){return;}
+	
+		//remove old callbacks, if we have them
+		if(state.data().previousTaskId!=0){
+			var previousTask = cst.test.getTaskById(state.data().previousTaskId);
+			state.messageCallbacks.remove(cst.tasks[previousTask.subType].questionCallback);
+		}
+		
+		//add new ones if we have them
+		if(state.data().taskId){
+			var thetask = cst.test.getTaskById(state.data().taskId);
+			//if(state.data().mySeat === 'student' || state.myHat() === 'Speaker'){
+			if(state.myHat() === 'Speaker'){
+				state.messageCallbacks.add(cst.tasks[thetask.subType].questionCallback);
+			}
+		}
+		
+		$(config.question).hide();
+		if (state.status() == 'taskStart' && state.myHat() == "Speaker"){
+				initQuestion(state.data().taskId);
+		}
+		
+			
+		/*
 		if (state.isStatus(['taskStart','speakerGo']) && state.myHat() == "Speaker"){
 			if (state.status() == 'taskStart')
 			{
@@ -375,11 +436,42 @@ cst.ui = (function ($) {
 			$(config.go).hide();
 			$(config.question).hide();
 		}
+		*/
 	};
 	
 	
 	
 	var answers = function(state){
+		
+		//if not initing task, return without doing anything
+		if (state.status() !== 'taskStart'){return;}
+	
+		//remove old callbacks, if we have them
+		if(state.data().previousTaskId!=0){
+			var previousTask = cst.test.getTaskById(state.data().previousTaskId);
+			state.messageCallbacks.remove(cst.tasks[previousTask.subType].answerCallback);
+		}
+		
+		//add new ones if we have them
+		if(state.data().taskId ){
+			var thetask = cst.test.getTaskById(state.data().taskId);
+		//	if(state.data().mySeat === 'teacher' || state.myHat() === 'Respondent'){
+			if(state.myHat() === 'Respondent'){
+				state.messageCallbacks.add(cst.tasks[thetask.subType].answerCallback);
+			}
+		}
+		
+		//if we are showing answers
+		if (state.myHat() == "Respondent"){
+			initAnswers(state.data().taskId);
+			$(config.answers).show();
+			answersEnabled(false);
+			stopInstructions(state.data().taskId,state.data().mySeat);
+		}else{
+			$(config.answers).hide();
+		}
+
+		/*
 		if (state.status() == 'taskStart' && state.myHat() == "Respondent"){
 			initAnswers(state.data().taskId);
 			$(config.answers).show();
@@ -389,6 +481,7 @@ cst.ui = (function ($) {
 		}else{
 			$(config.answers).hide();
 		}
+		*/
 	};
 	
 	//for within slide events
@@ -408,9 +501,20 @@ cst.ui = (function ($) {
 		}
 	};
 
+	var defaultAnswersEnableMessage =function(){
+		cst.state.data({
+			sharedStat: 'speakerGo', 
+			taskStart: cst.timer.getTime(),
+			studentLatency: cst.timer.getLatency()
+		});
+		cst.state.sendMessage({
+			answersEnabled: 'true'
+		});
+	};
 	
-	var initGoButton = function(){
-		var 	$go = $(config.go),
+
+	var initGoButton = function(doThisToo){
+		var $go = $(config.go),
 			$goButton = $(config.goButton),
 			$question = $(config.question);
 			
@@ -419,35 +523,26 @@ cst.ui = (function ($) {
 			e.preventDefault();
 			$question.show();
 			var goStart = cst.timer.getTime();
-			if ($question.find('.jp-jplayer').length){
-				$question.find('audio').get(0).play();
+			if(typeof doThisToo !== 'undefined'){
+				doThisToo();
+			}else{
+				$go.fadeOut('slow',defaultAnswersEnableMessage);
 			}
-			$go.fadeOut('slow', function(){
-				if ($question.find('.jp-jplayer').length){
-				  //Can't put play here, cuz apple won't allow it so far from a user gesture.  :/
-				}else{
-					cst.state.data({
-						sharedStat: 'speakerGo', 
-						taskStart: cst.timer.getTime(),
-						studentLatency: cst.timer.getLatency()
-					});
-				}
-			});
 		});
 	};
 	
-	var initInstructions = function(qId){
+	var initInstructions = function(taskId){
 		var 
 			$instructions = $(config.instructions),
 			taskType,
-			qData = cst.test.getTaskById(qId);
+			qData = cst.test.getTaskById(taskId);
 
 		if (qData && qData.subType){
 			taskType = cst.config.taskTypes()[qData.subType];
 			if (taskType) {
 				$instructions.empty().show();
 				
-				var descs = cst.config.taskTypes()[qData.subType.toTitleCase()].Descriptions[cst.state.myHat()];
+				var descs = cst.config.taskTypes()[qData.subType].Descriptions[cst.state.myHat()];
 				
 				if (!descs){
 					throw "init instructions: no descriptions found";
@@ -464,19 +559,21 @@ cst.ui = (function ($) {
 	};
 
 	
-	var initQuestion = function(qId){
+	var initQuestion = function(taskId){
 		var $question = $(config.question);
-		
-		var qData = cst.test.getTaskById(qId);
+		var qData = cst.test.getTaskById(taskId);
 		
 		if (qData){
-			var subType = qData.subType.toLowerCase();
+			var subType = qData.subType;
 			$question.removeClass(cst.config.taskTypeNames()).addClass(subType);
 			if (typeof cst.tasks[subType] !== 'undefined' && 
 				typeof cst.tasks[subType].initQuestion !== 'undefined'){
-				cst.tasks[subType].initQuestion($question, qData);
+				cst.tasks[subType].initQuestion($question, qData, cst.state);
 			}else{
 				$question.html(qData.content);
+				//this places a go button click before showing question
+				startInstructions(taskId,cst.state.data().mySeat);
+				initGoButton();
 			}
 			$question.data('id', qData.id);
 		}else{
@@ -485,25 +582,29 @@ cst.ui = (function ($) {
 		
 		
 		$(config.question + ' .clickable').on('click',function(){
-				cst.state.data({clickedQuestionItem: this.name});
-				});
+				cst.state.sendMessage({clickedQuestionItem: this.name});
+
+			});
 		
 		//break out another js object for questions?  factor in tasktypes..
 	};
 	
-	var initAnswers = function(qId){
+
+	var initAnswers = function(taskId){
 		var $answers = $(config.answers);
 		
 		$answers.empty().show();
 		
-		var qData = cst.test.getTaskById(qId);
+		var qData = cst.test.getTaskById(taskId);
 		
 		if (qData){
 			$answers.removeClass(cst.config.taskTypeNames()).addClass(qData.subType);
-			var subType = qData.subType.toLowerCase();
+
+			var subType = qData.subType;
 			if (typeof cst.tasks[subType] !== 'undefined' && 
 				typeof cst.tasks[subType].initAnswers !== 'undefined'){
-				cst.tasks[subType].initAnswers($answers, qData);
+				cst.tasks[subType].initAnswers($answers, qData, cst.state);
+
 			}else{
 				$(qData.answers).each(function(i, x){
 					$answers.append('<a class="answeritem" href="javascript:;" data-id="' + x.id + '">' + x.text + '</a>');
@@ -512,9 +613,10 @@ cst.ui = (function ($) {
 		
 			$(config.answers + ' .answeritem').one('click',takeAnswer);
 			$(config.answers + ' .clickable').on('click',function(){
-				cst.state.data({clickedAnswerItem: this.name});
+
+				cst.state.sendMessage({clickedAnswerItem: this.name});
 				});
-		
+
 		}else{
 			throw "initAnswers looked for a taskById and got nothin."
 		}
@@ -532,14 +634,24 @@ cst.ui = (function ($) {
 		}
 	};
 	
+	var doTakeAnswer = function(answerid){
+		cst.state.data({ taskEnd:cst.timer.getTime()});
+		$(config.answers).fadeOut('slow', function(){
+			cst.state.takeAnswer(answerid);
+		});
+	};
+	
 	var takeAnswer = function(e){
 		e.preventDefault();
 		if ($(this).hasClass('enabled')){
 			var that = this;
+			doTakeAnswer($(that).data('id'));
+			/*
 			cst.state.data({ taskEnd:cst.timer.getTime()});
 			$(config.answers).fadeOut('slow', function(){
 				cst.state.takeAnswer($(that).data('id'));
 			});
+			*/
 		}
 	};
 	
@@ -547,6 +659,13 @@ cst.ui = (function ($) {
 	// Public
 	return { // { must be on same line as return else semicolon gets inserted
 		init: init,
+		startInstructions: startInstructions,
+		stopInstructions: stopInstructions,
+		initInstructions: initInstructions,
+		defaultAnswersEnableMessage: defaultAnswersEnableMessage,
+		initGoButton: initGoButton,
+		doTakeAnswer: doTakeAnswer,
+		answersEnabled: answersEnabled,
 		working: working
 	};
 } (jQuery))

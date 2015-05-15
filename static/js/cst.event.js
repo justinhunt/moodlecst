@@ -41,6 +41,11 @@ cst.event = (function ($) {
 			stateChange(data);		//TODO: CONSIDER DIRECT PASS HERE.. WHY THE EXTRA FUNCTION?
 		});
 		
+		socket.on('newMessage', function(data){
+			console.log(data);
+			newMessage(data);	
+		});
+		
 		socket.on('reset', function(data){
 			document.location = './' + document.location.search;
 		});
@@ -132,16 +137,26 @@ cst.event = (function ($) {
 	
 	var newMessage = function(data){
 		var d = $.parseJSON(data);
-		//send data to state and skip syncing
-		if (d.from != cst.state.uniqueId()){
-			//cst.state.data(d.data,true);
-			//dosomething with this message
-			cst.state.message(d.data);
-		}
+		// we fire all messages even to the sender.
+		//it is up to the event handlers to decide to ignore it or not
+		cst.state.fireMessage(d.data);
+
 	};
 	
 	var wrapper = function(data){
 		return { "from": cst.state.uniqueId(), "data": data };
+	};
+	
+	var sendMessage = function(data){
+		var d = wrapper(data);
+		cst.event.socket().emit(
+			'newMessage', 
+			{ 
+				room: cst.state.data().channel,
+				seat: cst.state.data().mySeat,
+				messagePayload: JSON.stringify(d)
+			}
+		); 
 	};
 	
 	var syncStatus = function(data){
@@ -181,6 +196,7 @@ cst.event = (function ($) {
 		presenceChanges: presenceChanges,
 		presenceChannel: function(){ return presenceChannel },
 		usersOn: usersOn,
+		sendMessage: sendMessage,
 		everybodyOn: everybodyOn,
 		socket: function(){ return socket }
 	};
