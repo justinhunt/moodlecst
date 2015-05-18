@@ -22,8 +22,10 @@ cst.event = (function ($) {
 			console.log('connected to socket');
 			socket.emit('join', { seat: cst.state.data().mySeat, 
 			user: cst.state.data().userId, 
+			room:  cst.state.data().channel,
 			activity: cst.state.data().activityId, 
-			mode: cst.state.data().mode}); 
+			mode: cst.state.data().mode,
+			partnermode: cst.state.data().partnermode}); 
 		});
 		
 		socket.on('joinedRoom', function(data){
@@ -124,14 +126,14 @@ cst.event = (function ($) {
 		cst.state.fetchMoodleData({type: 'mydetails', userId: cst.state.data().userId});
 		cst.state.fetchMoodleData({type: 'partnerdetails', userId: data.partner});
 		//broadcast and save changes
-		cst.state.data(roomdetails, true);
+		cst.state.data('roomdetails',roomdetails, true);
 	};
 	
 	var stateChange = function(data){
 		var d = $.parseJSON(data);
 		//send data to state and skip syncing
 		if (d.from != cst.state.uniqueId()){
-			cst.state.data(d.data,true);
+			cst.state.data(d.data.dataevent,d.data,true);
 		}
 	};
 	
@@ -139,6 +141,7 @@ cst.event = (function ($) {
 		var d = $.parseJSON(data);
 		// we fire all messages even to the sender.
 		//it is up to the event handlers to decide to ignore it or not
+		console.log('firing message');
 		cst.state.fireMessage(d.data);
 
 	};
@@ -149,6 +152,7 @@ cst.event = (function ($) {
 	
 	var sendMessage = function(data){
 		var d = wrapper(data);
+		console.log('sending message' );
 		cst.event.socket().emit(
 			'newMessage', 
 			{ 
@@ -158,6 +162,7 @@ cst.event = (function ($) {
 			}
 		); 
 	};
+	
 	
 	var syncStatus = function(data){
 		var d = wrapper(data);
@@ -167,18 +172,6 @@ cst.event = (function ($) {
 				room: cst.state.data().channel,
 				seat: cst.state.data().mySeat,
 				syncPayload: JSON.stringify(d)
-			}
-		); 
-	};
-	
-	var sendMessage = function(data){
-		var d = wrapper(data);
-		cst.event.socket().emit(
-			'newMessage', 
-			{ 
-				room: cst.state.data().channel,
-				seat: cst.state.data().mySeat,
-				messagePayload: JSON.stringify(d)
 			}
 		); 
 	};

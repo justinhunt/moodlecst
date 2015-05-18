@@ -1,9 +1,46 @@
 cst.state = (function ($) {
 	"use strict";
 
+	/*
+//events
+STATE
+fetchfail,
+resetsession,
+newtask,
+answered (not sync)
+statuschange
+
+UI
+speakergo
+taskend
+taskstart
+consentgiven
+beginclicked
+
+EVENT
+roomdetails
+
+TIMER
+studentlatency
+
+TEST
+initteststate
+
+TASKS
+consentgiven
+
+CST.js
+localsysteminit (notsync)
+systeminit
+	
+	
+	
+	*/
+	
 	// Private
 	var 
 		data = {
+			dataEvent: '',
 			channel: '',
 			sessionId: 0,		//sync
 			raterId: 0,			//sync
@@ -28,7 +65,8 @@ cst.state = (function ($) {
 			partnerName: '',
 			partnerPic: '',
 			activityId: 0,
-			mode: 0,
+			mode: 'teacherstudent',
+			partnermode: 'manual',
 			clickedAnswerItem: '',
 			clickedQuestionItem: ''
 		},
@@ -38,6 +76,7 @@ cst.state = (function ($) {
 	
 	var syncData = function(){
 		return {
+			dataEvent: data.dataEvent,
 			raterId: data.raterId,
 			studentId: data.studentId,
 			sessionId: data.sessionId,
@@ -58,7 +97,7 @@ cst.state = (function ($) {
 	
 	var status = function(value){
 		if (typeof value !== 'undefined'){
-			cst.state.data({ sharedStat: value });
+			cst.state.data('statuschange',{sharedStat: value });
 		}
 		return cst.state.data().sharedStat;
 	};
@@ -104,10 +143,12 @@ cst.state = (function ($) {
 	};
 	
 	
-	var protectedData = function(newData, skipSync){
+	var protectedData = function(dataEvent, newData, skipSync){
 		if (newData){
 			if (!skipSync){
 				var toSync = {};
+				//dataEvent is a unique flag for the data update, allows receiver to process like event
+				newData.dataEvent = dataEvent;
 				$.each(newData, function(k, v){
 					if (typeof syncData()[k] !== "undefined" && data[k] != v){
 						toSync[k] = v;
@@ -121,6 +162,8 @@ cst.state = (function ($) {
 			var oldSessionId = data.sessionId;
 			$.extend(true, data, newData);
 			callbacks.fire(this);
+			//clear our label after firing
+			//data.dataEvent='';
 		}
 		return data;
 	};
@@ -139,9 +182,47 @@ cst.state = (function ($) {
 	};
 	
 	var fireMessage = function(messagedata){
+		console.log("firingmessage");
 		messageCallbacks.fire(messagedata);
 	};
 	
+	var doNext = function(){
+		var currentTask,
+			taskAnswer,
+			answer,
+			answer,
+			isCorrect,
+			currentTaskId;
+
+		currentTask  = cst.test.getTaskById(cst.state.data().taskId);	
+			
+		if (currentTask){
+			currentTaskId = currentTask.id;
+		}else{
+			currentTaskId=0;
+		}
+
+		
+		//set answered, for callbacks
+		cst.state.data('answered',{sharedStat: 'answered'}, true);
+		//console.log(cst.test.session());
+		//move to next task
+		var task = cst.test.nextTask();
+		if (task){
+			//push the state change
+			cst.state.data('newtask',{
+				previousTaskId: currentTaskId,
+				taskId: task.id,
+				sharedStat: 'taskStart',
+				studentStat: '',
+				teacherStat: '',
+				taskStart: 0,
+				taskEnd:0
+			});
+		}else{
+			sendResults();
+		}
+	};
 	
 	var takeAnswer = function(answerId){
 		var currentTask,
@@ -169,19 +250,20 @@ cst.state = (function ($) {
 			isCorrect = (taskAnswer.id == answerId);
 		}
 		
-		
-		var answer = cst.response.create(answerId, isCorrect);
-		
-		output.push(answer);
+		//prepare answer and store it
+		if(currentTaskId > 0){
+			var answer = cst.response.create(answerId, isCorrect);
+			output.push(answer);
+		}
 		
 		//set answered, for callbacks
-		cst.state.data({ sharedStat: 'answered'}, true);
-		
+		cst.state.data('answered',{sharedStat: 'answered'}, true);
+		//console.log(cst.test.session());
 		//move to next task
 		var task = cst.test.nextTask();
 		if (task){
 			//push the state change
-			cst.state.data({
+			cst.state.data('newtask',{
 				previousTaskId: currentTaskId,
 				taskId: task.id,
 				sharedStat: 'taskStart',
@@ -193,8 +275,6 @@ cst.state = (function ($) {
 		}else{
 			sendResults();
 		}
-		
-		
 	};
 	//params eg = {type: 'partnerdetails', userId: '13'}
 	//returned data = {type: 'partnerdetails', userName: 'Bob Jones', userPic: 'http://path.to.pic'}
@@ -208,16 +288,16 @@ cst.state = (function ($) {
 			success: function(data, textStatus, jqXHR){
 				switch(data.type){
 					case 'partnerdetails':
-						cst.state.data({userName: data.userName, userPic: data.userPic},true);
+						cst.state.data('partnerdetails',{userName: data.userName, userPic: data.userPic},true);
 						break;
 					case 'mydetails':
 					default:
-						cst.state.data({partnerName: data.userName, userPic: data.userPic},true);
+						cst.state.data('mydetails',{partnerName: data.userName, userPic: data.userPic},true);
 				}
 			},
 			error: function(jqXHR, textStatus, errorThrown){
 				cst.state.myStatus('fetchFail');
-				cst.state.data({ sendResponse: jqXHR.status + ': ' + jqXHR.responseText });
+				cst.state.data('fetchfail', { sendResponse: jqXHR.status + ': ' + jqXHR.responseText });
 			},
 			dataType: 'json'
 		});
@@ -225,7 +305,7 @@ cst.state = (function ($) {
 	
 	var sendResults = function(){
 	
-		cst.state.data({
+		cst.state.data('resetsession',{
 			taskId: 0,
 			sharedStat: 'done',
 			studentStat: '',
@@ -251,11 +331,11 @@ cst.state = (function ($) {
 			},
 			success: function(data, textStatus, jqXHR){ 
 				cst.state.myStatus('sendSuccess');
-				cst.state.data({ sendResponse: data });
+				cst.state.data('sendsuccess',{sendResponse: data });
 			},
 			error: function(jqXHR, textStatus, errorThrown){
 				cst.state.myStatus('sendFail');
-				cst.state.data({ sendResponse: jqXHR.status + ': ' + jqXHR.responseText });
+				cst.state.data('sendfail',{sendResponse: jqXHR.status + ': ' + jqXHR.responseText });
 			},
 			dataType: 'json'
 		});
@@ -284,6 +364,7 @@ cst.state = (function ($) {
 		callbacks: callbacks,
 		messageCallbacks: messageCallbacks,
 		takeAnswer: takeAnswer,
+		doNext: doNext,
 		myHat: myHat,
 		uniqueId: uniqueId,
 		myStatus: myStatus,

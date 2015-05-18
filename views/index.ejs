@@ -49,10 +49,12 @@
 				<input type="hidden" name="userid" value="<%=moodle.userid%>" id="userid">
 				<input type="hidden" name="activityid" value="<%=moodle.activityid%>" id="activityid">
 				<input type="hidden" name="mode" value="<%=moodle.mode%>" id="mode">
+				<input type="hidden" name="partnermode" value="<%=moodle.partnermode%>" id="partnermode">
 			</form>
 		</div>
+
 		<div id="init" class="form" style="display: none;">
-			<!--
+			<!-- had commented here -->
 			<div class="prompt">
 				<label for="session_id">Session Id:</label><input type="text" name="session_id" value="1" id="sessionId">
 			</div>
@@ -62,7 +64,7 @@
 			<div class="prompt">
 				<label for="student_id">Examinee Id:</label><input type="text" name="student_id" value="" id="studentId">
 			</div>
-			-->
+			<!-- had ended comment here -->
 			<input type="hidden" name="session_id" value="1" id="sessionId">
 			<input type="hidden" name="rater_id">
 			<input type="hidden" name="student_id">
@@ -74,7 +76,7 @@
 		<a id="cancel" href="javascript:;" style="display: none;">Cancel</a>
 		<a id="quit" href="javascript:;" style="display: none;">Quit</a>
 		<a id="timer" style="display: none;"></a> 
-		<div id="waiting" style="display: block;"><i class="fa fa-spinner fa-pulse fa-5x"></i><div>waiting for partner</div></div> 
+		<div id="waiting" style="display: none;"><i class="fa fa-spinner fa-pulse fa-5x"></i><div>waiting for partner</div></div> 
 		<div id="users">Loading...</div> 
 		<div id="instructions" style="display: none;"></div>
 		<div id="working" style="display: none;">Something's up<span id="dot3"></span></div>

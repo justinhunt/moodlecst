@@ -25,19 +25,20 @@ cst = (function ($) {
 		cst.config.init(function(){
 			cst.event.init(function(){
 				//set up state basics.. don't sync it yet.
-				cst.state.data({
+				cst.state.data('localsysteminit',{
 					channel: cst.url().channel,
 					mySeat: cst.url().seat,
 					sesskey: cst.url().sesskey,
 					userId: cst.url().userid,
 					activityId: cst.url().activityid,
-					mode: cst.url().mode
+					mode: cst.url().mode,
+					partnermode: cst.url().partnermode
 				}, 1);
 				cst.ui.init();
 				cst.timer.init();
 				
 				//now sync it.
-				cst.state.data({
+				cst.state.data('systeminit',{
 					sharedStat: 'systemInit'
 				});
 			});
@@ -56,10 +57,8 @@ cst = (function ($) {
 	
 	
 	//Runs only on the teacher side. Events and data should all propagate over state sync.
-	//in the moodle era, we determine rater and student ids without student interaction
-	//the session id is always 1 (it could be removed, but softly softly for now) J 20150421
 	var initHandler = function(e){
-		e.preventDefault();
+		if(e){e.preventDefault()};
 		var 
 			$studentId = $('#studentId'),
 			$raterId = $('#raterId'),
@@ -76,17 +75,7 @@ cst = (function ($) {
 				alert("That session could not be found.  Please try another");
 				return;
 			}
-			/*
-			if ($studentId.val() == ''){
-				alert('Please Specify an Examinee Id');
-				return;
-			}
-			if ($raterId.val() == ''){
-				alert('Please specify a Rater Id');
-				return;
-			}
-			*/
-			
+		
 			
 			if (thisSession.length > 0){
 				stateOut.sessionId = $sessionId.val().toLowerCase();

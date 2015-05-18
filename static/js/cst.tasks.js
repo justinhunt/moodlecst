@@ -20,21 +20,11 @@ cst.tasks.listen = (function ($) {
 			},
 			ended: function(event){
 				cst.ui.defaultAnswersEnableMessage();
-				/*
-				cst.state.data({
-					sharedStat: 'speakerGo', 
-					taskStart: cst.timer.getTime(),
-					studentLatency: cst.timer.getLatency()
-				});
-				cst.state.sendMessage({
-					answersEnabled: 'true'
-				});
-				*/
 				console.log(["play complete",event]);
 			},
 			supplied: "mp3"
 		});
-		cst.ui.startInstructions(state.data().taskId,state.data().mySeat);
+
 		//this places a go button click before showing question
 		cst.ui.initGoButton(function(){
 				$('#go').hide();
@@ -69,16 +59,17 @@ cst.tasks.picture = (function ($) {
 	var initQuestion = function($question, qData, state){
 		$question.empty();
 		$question.html('<img id="q1Img" class="questionImage" src="' + qData.content + '"/>' );
-		cst.ui.startInstructions(state.data().taskId,state.data().mySeat);
 		//this places a go button click before showing question
 		cst.ui.initGoButton();
 	};
 	
 	var initAnswers = function($answers, qData, state){
 		$(qData.answers).each(function(i, x){
+			//for some reason, clicking on an incorrect answer leads to jumping to the end of the quiz. why?
 			$answers.append('<a class="answeritem" href="javascript:;" data-id="' + x.id + '"><img id="q1Img" class="questionImage" src="' + x.img + '"/></a>');
+			//$answers.append('<a class="clickable" name="' +  x.id + '" href="javascript:;" data-id="' + x.id + '"><img id="q1Img" class="questionImage" src="' + x.img + '"/></a>');
+			
 		});
-		
 	};
 	
 	var answerCallback = function(mdata){
@@ -86,11 +77,71 @@ cst.tasks.picture = (function ($) {
 			switch(propname){
 				case 'answersEnabled':
 					cst.ui.answersEnabled(true);
+					break;
+				//preferredn the answeritem method, but this works
+				//propname is the answerid
+				default:
+					//cst.ui.doTakeAnswer(propname);
 				break;
 			}
 		});
 	};
 	var questionCallback = function(state){};
+	
+	// Public
+	return { // { must be on same line as return else semicolon gets inserted
+		initQuestion: initQuestion,
+		initAnswers: initAnswers,
+		answerCallback: answerCallback,
+		questionCallback: questionCallback
+	};
+} (jQuery));
+
+cst.tasks.choice = (function ($) {
+	"use strict";
+
+	// Private
+	var initQuestion = function($question, qData, state){
+		$question.empty();
+		//$question.html('You are waiting' );
+		//$question.show();
+		cst.ui.showWaiting(true);
+	};
+	
+	var initAnswers = function($answers, qData, state){
+		$answers.append('<h2>' + qData.heading + '</h2>');
+		$(qData.answers).each(function(i, x){
+			$answers.append('<a class="clickable" name="'+  qData.variable +'" href="javascript:;" data-value="' + x.text + '">' + x.text + '</a>');
+		});
+
+		
+	};
+	
+	var answerCallback = function(mdata){
+		console.log('answercallback:');
+		//console.log(mdata);
+		var idx = mdata.clickedAnswerItem.indexOf('action:');
+		//do action
+		if(idx===0){
+			var action =  mdata.clickedAnswerItem.split(':')[1];
+			cst.ui[action](mdata.clickedAnswerItemValue);
+		//set property
+		}else{
+				var propdata = {};
+				propdata[mdata.clickedAnswerItem] = mdata.clickedAnswerItemValue;
+				cst.state.data('choiceupdate',propdata);
+		}
+		cst.ui.doNext();
+	};
+	var questionCallback = function(mdata){
+		console.log('questioncallback:');
+		console.log(mdata);
+		if(mdata.clickedAnswerItem == 'action:doSetSeat'){
+			var newseat = cst.config.otherSeat(mdata.clickedAnswerItemValue.toTitleCase());
+			cst.ui.doSetSeat(newseat.toLowerCase());
+		}
+	};
+
 	
 	// Public
 	return { // { must be on same line as return else semicolon gets inserted
@@ -109,10 +160,9 @@ cst.tasks.translate = (function ($) {
 		$question.empty();
 		var qhtml = '<div id="qTranslateSource" class="questionTranslateSource">' + qData.content.source + '</div>';
 		qhtml += '<div id="qTranslateTarget" class="questionTranslateTarget">' + qData.content.target + '</div>';
-		qhtml += '<a id="qTranslateHint" name="hintbutton" class="clickable">Show Hint</a>'; 
-		qhtml +=  '<a id="qTranslateDone" name="donebutton" class="clickable">Done</a>';
+		qhtml += '<a id="qTranslateHint" name="hintbutton" class="clickable" data-value="unused">Show Hint</a>'; 
+		//qhtml +=  '<br /><a id="qTranslateDone" name="donebutton" class="clickable" data-value="unused">Done</a>';
 		$question.html(qhtml);
-		cst.ui.startInstructions(state.data().taskId,state.data().mySeat);
 		cst.ui.initGoButton();
 	};
 	
@@ -121,7 +171,8 @@ cst.tasks.translate = (function ($) {
 			//$answers.append('<a href="javascript:;" data-id="' + x.id + '"><img id="q1Img" class="questionImage" src="' + x.img + '"/></a>');	
 			//var answerhtml='<div id="qTranslate" class="questionTranslate">' + x.text + '</div><br />';
 			var answerhtml = '<div id="qTranslateSource" class="questionTranslateSource" style="display: none">' + qData.content.source + '</div>';
-			answerhtml += 
+			//answerhtml +=  '<br /><a id="qTranslateDone" name="donebutton" class="clickable" data-value="unused">Done</a>';
+			answerhtml += '<a class="answeritem" href="javascript:;" data-id="1">Done</a>';
 			$answers.append(answerhtml);
 		});
 		
@@ -137,19 +188,15 @@ cst.tasks.translate = (function ($) {
 							$('#qTranslateSource').show();
 						break;
 					case 'donebutton':
-							console.log('donebutton clicked over there');
-							//cst.ui.doTakeAnswer(1);
-							/*
-							cst.state.data({ taskEnd:cst.timer.getTime()});
-							$('#answers').fadeOut('slow', function(){
-								cst.state.takeAnswer(1);
-							});
-							*/
+							console.log('donebutton clicked here');
+							cst.ui.doTakeAnswer(1);
 						break;
 					default:
 						console.log('another clickable clicked: ' + propname);
 				}//end of switch
-			}//end of propname
+			}else if(propname=='answersEnabled'){
+					cst.ui.answersEnabled(true);
+			}
 		});
 	};
 	
@@ -162,8 +209,8 @@ cst.tasks.translate = (function ($) {
 						$('#qTranslateHint').hide();
 						break;
 					case 'donebutton':
-							console.log('donebutton clicked HERE');
-							cst.ui.doTakeAnswer(1);
+							console.log('donebutton over THERE');
+							//cst.ui.doTakeAnswer(1);
 						break;
 					default:
 						console.log('another clickable clicked: ' + propname);
@@ -188,19 +235,36 @@ cst.tasks.consent = (function ($) {
 	// Private
 	var initQuestion = function($question, qData){
 		$question.empty();
-		$question.html('<img id="q1Img" class="questionImage" src="' + qData.content + '"/>' );
-		
+		var qhtml = '<div id="qConsent" class="questionConsent">';
+		qhtml +=  qData.content;
+		qhtml += '<a id="begin" class="clickable" name="consentbutton" href="javascript:;" data-value="unused">同意します。 / Agree</a>';
+		qhtml += '</div>';
+		$question.html(qhtml);
+		$question.show();
 	};
 	
 	var initAnswers = function($answers, qData){
-		$(qData.answers).each(function(i, x){
-			$answers.append('<a class="answeritem" href="javascript:;" data-id="' + x.id + '"><img id="q1Img" class="questionImage" src="' + x.img + '"/></a>');
-		});
-		
+		var ahtml = '<div id="qConsent" class="questionConsent">';
+		ahtml +=  '<h2>waiting for partner</h2>'
+		ahtml += '</div>';
+		$answers.html(ahtml);
 	};
 	
 	var answerCallback = function(state){};
-	var questionCallback = function(state){};
+	var  questionCallback = function(mdata){
+		$.each(mdata, function(propname, propvalue){
+			if(propname=="clickedQuestionItem"){
+				switch(propvalue){
+					case 'consentbutton':
+							cst.state.data('consentgiven',{consentGiven: true});
+							cst.ui.doTakeAnswer(1);
+						break;
+					default:
+						console.log('another clickable clicked: ' + propname);
+				}//end of switch
+			}//end of propname
+		});
+	};
 	
 	// Public
 	return { // { must be on same line as return else semicolon gets inserted
@@ -218,18 +282,36 @@ cst.tasks.instructions = (function ($) {
 	// Private
 	var initQuestion = function($question, qData){
 		$question.empty();
-		$question.html('<img id="q1Img" class="questionImage" src="' + qData.content + '"/>' );
+		var qhtml = '<div id="qInstructions" class="questionInstructions">';
+		qhtml +=  qData.content;
+		qhtml += '<a id="begin" class="clickable" name="startbutton" href="javascript:;" data-value="unused">Start</a>';
+		qhtml += '</div>';
+		$question.html(qhtml);
+		$question.show();
 	};
 	
 	var initAnswers = function($answers, qData){
-		$(qData.answers).each(function(i, x){
-			$answers.append('<a class="answeritem" href="javascript:;" data-id="' + x.id + '"><img id="q1Img" class="questionImage" src="' + x.img + '"/></a>');
-		});
-		
+		var ahtml = '<div id="qInstructions" class="questionInstructions">';
+		ahtml +=  qData.answers;
+		ahtml += '</div>';
+		$answers.html(ahtml);
 	};
 	
 	var answerCallback = function(state){};
-	var questionCallback = function(state){};
+	var  questionCallback = function(mdata){
+		$.each(mdata, function(propname, propvalue){
+			if(propname=="clickedQuestionItem"){
+				switch(propvalue){
+					case 'startbutton':
+							console.log('startbutton clicked HERE');
+							cst.ui.doTakeAnswer(1);
+						break;
+					default:
+						console.log('another clickable clicked: ' + propname);
+				}//end of switch
+			}//end of propname
+		});
+	};
 	
 	// Public
 	return { // { must be on same line as return else semicolon gets inserted
@@ -267,6 +349,8 @@ cst.tasks.whowho = (function ($) {
 		questionCallback: questionCallback
 	};
 } (jQuery));
+
+
 
 cst.tasks.taboo = (function ($) {
 	"use strict";

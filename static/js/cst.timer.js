@@ -58,7 +58,7 @@ cst.timer = (function ($) {
 		};
 		
 		if (cst.state.data().mySeat == 'Student'){
-			cst.state.data({ studentLatency: latency });
+			cst.state.data('studentlatency',{ studentLatency: latency });
 		}
 		r.send(null);
 	};

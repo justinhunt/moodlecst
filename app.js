@@ -27,7 +27,7 @@ var handler = function(req, res){};
 webserver.get("/", function(req, res){
 	res.render(__dirname + '/views/index.ejs', {
 		layout:false,
-		moodle: {sesskey: req.param('sesskey'), activityid: req.param('activityid'), userid: req.param('userid'), mode: req.param('mode')},
+		moodle: {sesskey: req.param('sesskey'), activityid: req.param('activityid'), userid: req.param('userid'), mode: req.param('mode'), partnermode: req.param('partnermode')},
 		locals: { cacheKey: '?t=' + (new Date()).getTime() }
 	});
 });
@@ -112,8 +112,21 @@ io.sockets.on('connection', function (socket) {
 		return mems;
 	}
 	
+
+	
 	socket.on('join', function(data){
-console.log(data);
+	console.log(data);
+		//in manual mode this is simple, we just do what we are told
+		if(data.partnermode=='manual'){
+			socket.join(data.room);
+			socket['seat'] = data.seat;
+			socket['room'] = data.room;		//used mostly to tell the room that you left
+			console.log('going to room:seat' + data.room + ':' + data.seat);
+			io.sockets.in(data.room).emit('presenceChange', memberChange(data.room));
+			return;
+		}
+		
+		//the rest of this is auto mode
 		if(typeof waiting[data.activity] == 'undefined'){
 			waiting[data.activity]=Array();
 console.log('creating queue for activity:' + data.activity);
@@ -190,6 +203,7 @@ console.log('roomname:' + roomname);
 	});
 	
 	socket.on('newMessage', function (data) {
+		console.log('emitting new message');
 		io.sockets.in(data.room).emit('newMessage', data.messagePayload);
 	});
 	

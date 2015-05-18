@@ -7,6 +7,7 @@ cst.ui = (function ($) {
 			header: '#header',
 			timer: '#timer',
 			users: '#users',
+			setup: '#setup',
 			init: '#init',
 			working: '#working',
 			waiting: '#waiting',
@@ -32,11 +33,9 @@ cst.ui = (function ($) {
 	var init = function(){
 		console.log('cst.ui init...');
 		cst.state.callbacks.add(testInit);
-		//cst.state.callbacks.add(instructions);
 		cst.state.callbacks.add(question);
 		cst.state.callbacks.add(answers);
 		cst.state.callbacks.add(status);
-	//	cst.state.callbacks.add(slidepairCallback);
 		cst.event.pusherCallbacks.add(workingChange);
 		cst.event.presenceChanges.add(presenceChange);
 		cst.timer.tickCallbacks.add(timerTick);
@@ -62,32 +61,12 @@ cst.ui = (function ($) {
 		
 		$(config.restart).click(function(e){
 			e.preventDefault();
-			
-			cst.state.data({sharedStat: "taskStart", taskStart: 0});
+			cst.state.data('newtask',{sharedStat: "taskStart", taskStart: 0});
 		});
 		
-		$(config.agree).click(function(e){
-			e.preventDefault();
-			cst.state.data({ consentGiven: true });
-			$(config.consent).hide();
-			$(config.generalInstructions).show();
-
-		});
-		
-		$(config.begin).click(function(e){
-			e.preventDefault();
-			switch(cst.state.data().mode){
-				case 'studentstudent':
-					cst.state.data({ beginClicked: true, consentGiven: true});
-					break;
-				case 'teacherstudent':
-				default:
-					cst.state.data({ beginClicked: true });
-			}
-					
-			$(config.generalInstructions).hide();
+		if(cst.state.data().partnermode=='auto'){
 			$(config.waiting).show();
-		});
+		}
 		
 	};
 	
@@ -109,9 +88,9 @@ cst.ui = (function ($) {
 				var showrole=v;
 				if(cst.state.data().mode == 'studentstudent'){
 					if (showrole.toLowerCase()=='teacher'){
-						showrole='Student A';
+						showrole='RATER';
 					}else{
-						showrole='Student B';
+						showrole='RATEE';
 					}
 				}
 				if(v == cst.state.data().mySeat){
@@ -129,7 +108,7 @@ cst.ui = (function ($) {
 		
 		
 		
-		if (cst.state.status() == 'sessionInit' && cst.event.everybodyOn() && cst.state.data()['consentGiven'] && cst.state.data()['beginClicked']){
+		if (cst.state.status() == 'sessionInit' && cst.event.everybodyOn()){
 			$initButton.show();
 			$(config.waiting).hide();
 		}else{
@@ -175,13 +154,16 @@ cst.ui = (function ($) {
 			loutput = [],
 			diagnostics = typeof cst.url().diag !== 'undefined';
 		
-		console.log('ui Status:');
-		console.log(cst.state.data());
+		//console.log('ui Status:');
+		//console.log(cst.state.data());
+		
+		//check for seatchange
+		
+		
 		//This returns us to the beginning???
 		if ((state.status() == 'systemInit' || state.status() == 'sessionInit') && state.theirStatus() == 'sendSuccess'){
 			document.location = './' + document.location.search;
 		}
-	
 		
 		if (state.status() == 'done'){
 		
@@ -314,31 +296,42 @@ cst.ui = (function ($) {
 		}
 	};
 	
-	//changed all refs of cst.state here to state.data J 20150430
+	
+		//changed all refs of cst.state here to state.data J 20150430
 	var testInit = function(state){
+	/*
+		if(state.status()=='systemInit'){
+				console.log("doing setup");
+				$(config.waiting).hide();
+				$(config.setup).show();
+			return;
+		}
+		*/
+		switch(state.data().partnermode){
+			case 'manual':
+			
+			
+				break;
+			case 'auto':
+			
+				break;
+		
+		}
+		
+		
 		switch(state.data().mode){
 			case 'studentstudent':
 				if (state.status() == 'sessionInit' && state.data().mySeat == 'teacher'){
-					//start on "teacher" go button
-					//we might to insert teacher instructions here
-					// .....
-					$(config.initButton).click(cst.initHandler);
-					//call this as a last ditch for the init button, just in case we missed pusher's update.
-					$(config.waiting).show();
+					//this adds the handler and shows the button
+					//$(config.initButton).click(cst.initHandler);
+					//$(config.init).show();
 					presenceChange();
-					$(config.init).show();
+					cst.initHandler(false);
 				}else if (state.status() == 'sessionInit' && state.data().mySeat == 'student'){
-					$(config.init).hide();
-					//at this point we would like to imply consent, rather then show a form, but ..
-					//BUT NEVER EVER call state.data from a callback that fires on state.data
-					//I wasted hours tracking this down.....
-					//cst.state.data({ consentGiven: true },true);
-					//In the end set consent to given in init button click event
-					
-					//in the end call this jsut to update user pic and name. 
-					presenceChange();
-					$(config.waiting).hide();
-					$(config.generalInstructions).show();
+					//$(config.initButton).click(cst.initHandler);
+					//$(config.init).show();
+					 presenceChange();
+					 cst.initHandler(false);
 				}else{
 					$(config.init).hide();
 				}
@@ -358,22 +351,33 @@ cst.ui = (function ($) {
 					}
 					*/
 					
+					/*
 					$(config.initButton).click(cst.initHandler);
 					//call this as a last ditch for the init button, just in case we missed pusher's update.
 					$(config.waiting).show();
 					presenceChange();
 					$(config.init).show();
+					*/
+					presenceChange();
+					cst.initHandler(false);
+					 
 				}else if (state.status() == 'sessionInit' && state.data().mySeat == 'student' && !state.data().consentGiven){
+					/*
 					$(config.init).hide();
 					$(config.waiting).hide();
 					$(config.consent).show();
 					//in the end called this jsut to update user pic and name. 
 					presenceChange();
+					*/
+					presenceChange();
+					cst.initHandler(false);
 				}else{
 					$(config.init).hide();
 				}
+				break;
 		}
 	};
+
 	
 	//Tries to increment the session Id cookie, if it fails, returns the old value as it was.
 	var getNextSessionId = function(){
@@ -395,13 +399,17 @@ cst.ui = (function ($) {
 	var question = function(state){
 		
 		//if not initing task, return without doing anything
-		if (state.status() !== 'taskStart'){return;}
+		if(!(state.data().dataEvent =='initteststate' || state.data().dataEvent =='newtask')){
+			return;
+		}
+		console.log('questioning from event:' + state.data().dataEvent );
 	
 		//remove old callbacks, if we have them
 		if(state.data().previousTaskId!=0){
 			var previousTask = cst.test.getTaskById(state.data().previousTaskId);
 			state.messageCallbacks.remove(cst.tasks[previousTask.subType].questionCallback);
 		}
+
 		
 		//add new ones if we have them
 		if(state.data().taskId){
@@ -416,27 +424,7 @@ cst.ui = (function ($) {
 		if (state.status() == 'taskStart' && state.myHat() == "Speaker"){
 				initQuestion(state.data().taskId);
 		}
-		
-			
-		/*
-		if (state.isStatus(['taskStart','speakerGo']) && state.myHat() == "Speaker"){
-			if (state.status() == 'taskStart')
-			{
-				$(config.question).hide();
-			}
-			initQuestion(state.data().taskId);
-			if (state.status() == 'speakerGo'){
-				$(config.go).hide();
-			}else{
-				initGoButton();
-				//is this enough? do i need to verify that images and stuff came in?
-				if (state.myStatus() != 'ready') state.myStatus('ready');
-			}
-		}else{
-			$(config.go).hide();
-			$(config.question).hide();
-		}
-		*/
+	
 	};
 	
 	
@@ -444,10 +432,13 @@ cst.ui = (function ($) {
 	var answers = function(state){
 		
 		//if not initing task, return without doing anything
-		if (state.status() !== 'taskStart'){return;}
-	
+		if(!(state.data().dataEvent =='initteststate' || state.data().dataEvent =='newtask')){
+			return;
+		}
+		
 		//remove old callbacks, if we have them
 		if(state.data().previousTaskId!=0){
+			console.log('removing callback');
 			var previousTask = cst.test.getTaskById(state.data().previousTaskId);
 			state.messageCallbacks.remove(cst.tasks[previousTask.subType].answerCallback);
 		}
@@ -457,6 +448,7 @@ cst.ui = (function ($) {
 			var thetask = cst.test.getTaskById(state.data().taskId);
 		//	if(state.data().mySeat === 'teacher' || state.myHat() === 'Respondent'){
 			if(state.myHat() === 'Respondent'){
+				console.log('adding callback task');
 				state.messageCallbacks.add(cst.tasks[thetask.subType].answerCallback);
 			}
 		}
@@ -465,44 +457,22 @@ cst.ui = (function ($) {
 		if (state.myHat() == "Respondent"){
 			initAnswers(state.data().taskId);
 			$(config.answers).show();
-			answersEnabled(false);
-			stopInstructions(state.data().taskId,state.data().mySeat);
+			//sub 1 taskids are system ones
+			if(cst.state.data().taskId>0){
+				answersEnabled(false);
+			}else{
+				answersEnabled(true);
+			}
+			//stopInstructions(state.data().taskId,state.data().mySeat);
 		}else{
 			$(config.answers).hide();
 		}
 
-		/*
-		if (state.status() == 'taskStart' && state.myHat() == "Respondent"){
-			initAnswers(state.data().taskId);
-			$(config.answers).show();
-			answersEnabled(false);
-		}else if (state.status() == 'speakerGo' && state.myHat() == "Respondent"){
-			answersEnabled(true);
-		}else{
-			$(config.answers).hide();
-		}
-		*/
 	};
-	
-	//for within slide events
-	var slidepairCallback = function(state){
-		var tid = state.data().taskId;
-		if(tid==0){return;}
-		var qData = cst.test.getTaskById(state.data().taskId);
-		if (qData){
-			if (typeof cst.tasks[qData.subType.toLowerCase()] !== 'undefined'){
-				if(typeof cst.tasks[qData.subType.toLowerCase()].answerCallback !== 'undefined'){
-					cst.tasks[qData.subType.toLowerCase()].answerCallback(state);
-				}
-				if(typeof cst.tasks[qData.subType.toLowerCase()].questionCallback !== 'undefined'){
-					cst.tasks[qData.subType.toLowerCase()].questionCallback(state);
-				}
-			}
-		}
-	};
+
 
 	var defaultAnswersEnableMessage =function(){
-		cst.state.data({
+		cst.state.data('speakergo',{
 			sharedStat: 'speakerGo', 
 			taskStart: cst.timer.getTime(),
 			studentLatency: cst.timer.getLatency()
@@ -532,8 +502,7 @@ cst.ui = (function ($) {
 	};
 	
 	var initInstructions = function(taskId){
-		var 
-			$instructions = $(config.instructions),
+		var $instructions = $(config.instructions),
 			taskType,
 			qData = cst.test.getTaskById(taskId);
 
@@ -564,6 +533,7 @@ cst.ui = (function ($) {
 		var qData = cst.test.getTaskById(taskId);
 		
 		if (qData){
+			showWaiting(false);
 			var subType = qData.subType;
 			$question.removeClass(cst.config.taskTypeNames()).addClass(subType);
 			if (typeof cst.tasks[subType] !== 'undefined' && 
@@ -572,9 +542,9 @@ cst.ui = (function ($) {
 			}else{
 				$question.html(qData.content);
 				//this places a go button click before showing question
-				startInstructions(taskId,cst.state.data().mySeat);
 				initGoButton();
 			}
+			startInstructions(taskId,cst.state.data().mySeat);
 			$question.data('id', qData.id);
 		}else{
 			throw "initQuestion looked for a taskById and got nothin."
@@ -582,13 +552,13 @@ cst.ui = (function ($) {
 		
 		
 		$(config.question + ' .clickable').on('click',function(){
-				cst.state.sendMessage({clickedQuestionItem: this.name});
-
-			});
+		
+					cst.state.sendMessage({clickedQuestionItem: this.name, clickedQuestionItemValue: $(this).data('value')});
+				});
 		
 		//break out another js object for questions?  factor in tasktypes..
 	};
-	
+
 
 	var initAnswers = function(taskId){
 		var $answers = $(config.answers);
@@ -598,6 +568,7 @@ cst.ui = (function ($) {
 		var qData = cst.test.getTaskById(taskId);
 		
 		if (qData){
+			showWaiting(false);
 			$answers.removeClass(cst.config.taskTypeNames()).addClass(qData.subType);
 
 			var subType = qData.subType;
@@ -610,17 +581,20 @@ cst.ui = (function ($) {
 					$answers.append('<a class="answeritem" href="javascript:;" data-id="' + x.id + '">' + x.text + '</a>');
 				});
 			}
-		
+			startInstructions(taskId,cst.state.data().mySeat);
 			$(config.answers + ' .answeritem').one('click',takeAnswer);
-			$(config.answers + ' .clickable').on('click',function(){
-
-				cst.state.sendMessage({clickedAnswerItem: this.name});
+			$(config.answers + ' .clickable').on('click',function(e){
+					if ($(this).hasClass('enabled')){
+						e.preventDefault();
+						var that=this;
+						cst.state.sendMessage({clickedAnswerItem: that.name, clickedAnswerItemValue: $(that).data('value')});
+					}
 				});
-
 		}else{
 			throw "initAnswers looked for a taskById and got nothin."
 		}
 	};
+
 	
 	var answersEnabled = function(val){
 		if (typeof val !== 'boolean'){ return; }
@@ -635,10 +609,23 @@ cst.ui = (function ($) {
 	};
 	
 	var doTakeAnswer = function(answerid){
-		cst.state.data({ taskEnd:cst.timer.getTime()});
+		cst.state.data('taskend',{taskEnd:cst.timer.getTime()});
 		$(config.answers).fadeOut('slow', function(){
 			cst.state.takeAnswer(answerid);
 		});
+	};
+	
+	var doNext = function(){
+			cst.state.data('taskend',{taskEnd:cst.timer.getTime()});
+			$(config.answers).fadeOut('slow', function(){
+				cst.state.doNext();
+			});
+	};
+	
+	var doSetSeat = function(newseat){
+		cst.state.messageCallbacks.empty();
+		cst.state.data('updateseat',{mySeat: newseat},true);
+		console.log('updated seat:nowseat' + newseat + ':' + cst.state.data().mySeat);
 	};
 	
 	var takeAnswer = function(e){
@@ -646,12 +633,14 @@ cst.ui = (function ($) {
 		if ($(this).hasClass('enabled')){
 			var that = this;
 			doTakeAnswer($(that).data('id'));
-			/*
-			cst.state.data({ taskEnd:cst.timer.getTime()});
-			$(config.answers).fadeOut('slow', function(){
-				cst.state.takeAnswer($(that).data('id'));
-			});
-			*/
+		}
+	};
+	
+	var showWaiting = function(doShow){
+		if(!doShow){
+			$(config.waiting).hide();
+		}else{
+			$(config.waiting).show();
 		}
 	};
 	
@@ -665,6 +654,9 @@ cst.ui = (function ($) {
 		defaultAnswersEnableMessage: defaultAnswersEnableMessage,
 		initGoButton: initGoButton,
 		doTakeAnswer: doTakeAnswer,
+		doNext: doNext,
+		doSetSeat: doSetSeat,
+		showWaiting: showWaiting,
 		answersEnabled: answersEnabled,
 		working: working
 	};

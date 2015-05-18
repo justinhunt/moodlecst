@@ -18,7 +18,9 @@ cst.test = (function ($) {
 		if (data.tasks.length > 0 && session.length > 0 ){
 			toState.taskId = session[0];
 		}
-		cst.state.data(toState);
+		console.log('Now initing test state');
+		cst.state.data('initteststate',toState);
+		
 	};
 	
 		
@@ -36,6 +38,8 @@ cst.test = (function ($) {
 	
 	
 	var nextTask = function(){
+
+		//console.log('TID:' + cst.state.data().taskId);
 		var task = getTaskById(cst.state.data().taskId);
 		
 		var idx = $.inArray(task.id, session);
