@@ -14,7 +14,7 @@
 	}
 },
 "taskTypes": {
-	"Taboo" : {
+	"taboo" : {
 		"Descriptions" : {
 			"Respondent" : [ 
 				"相手の説明を聞いて、説明されている言葉を正しく答えた時点で、「Done」のボタンをタッチして下さい。",
@@ -26,7 +26,7 @@
 			]
 		}
 	},
-	"Picture": {
+	"picture": {
 		"Descriptions" : {
 			"Respondent" : [ 
 				"相手に説明されている絵をタッチして下さい。",
@@ -38,7 +38,7 @@
 			]
 		}
 	},
-	"Listen": {
+	"listen": {
 		"Descriptions" : {
 			"Respondent" : [ 
 				"相手の説明を聞いて、そのどの内容の説明か分かったら、そのボタンをタッチして下さい。",
@@ -50,7 +50,7 @@
 			]
 		}
 	},
-	"Translate": {
+	"translate": {
 		"Descriptions" : {
 			"Respondent" : [ 
 				"相手の言うことを聞いて、正しく通訳できた時点で、「Done」のボタンをタッチして下さい。",
@@ -59,6 +59,54 @@
 			"Speaker" : [
 				"相手に次の分を言って、相手が正しく通訳できたら、相手に教えてあげて下さい。「Go」のボタンをタッチして、始めて下さい。",
 				"Please read the sentence below to your partner. When your partner has translated the word, tell him/her. Touch \"Go\" to begin."
+			]
+		}
+	},
+	"whowho": {
+		"Descriptions" : {
+			"Respondent" : [ 
+				"respondent whowho description JP",
+				"respondent whowho description EN" 
+			],
+			"Speaker" : [ 
+				"speaker whowho description JP",
+				"speaker whowho description EN" 
+			]
+		}
+	},
+	"consent": {
+		"Descriptions" : {
+			"Respondent" : [ 
+				"",
+				"" 
+			],
+			"Speaker" : [ 
+				"",
+				"" 
+			]
+		}
+	},
+	"instructions": {
+		"Descriptions" : {
+			"Respondent" : [ 
+				"",
+				"" 
+			],
+			"Speaker" : [ 
+				"",
+				"" 
+			]
+		}
+	},
+	"choice": {
+		"Descriptions" : {
+			"Respondent" : [ 
+				"",
+				"" 
+			],
+			"Speaker" : [ 
+				"",
+				"" 
 			]
 		}
 	}
