@@ -207,6 +207,7 @@ systeminit
 		cst.state.data('answered',{sharedStat: 'answered'}, true);
 		//console.log(cst.test.session());
 		//move to next task
+	
 		var task = cst.test.nextTask();
 		if (task){
 			//push the state change

@@ -53,10 +53,16 @@ cst.ui = (function ($) {
 		}
 		$(config.cancel).click(function(e){
 			e.preventDefault();
-		
-			if (confirm('This will discard any test data collected and return to the beginning.\n\nProceed?')){
-				document.location = './' + window.location.search;
-			}
+			
+				if (confirm('This will discard any test data collected and return to the beginning.\n\nProceed?')){
+					if(cst.state.data().partnermode=='manual'){
+						document.location = './' + window.location.search;
+					}else{
+						cst.state.clearOutput();
+						cst.test.initTestState(); 
+					}
+				}
+			
 		});
 		
 		$(config.restart).click(function(e){
@@ -161,6 +167,9 @@ cst.ui = (function ($) {
 		//console.log(cst.state.data());
 		
 		//check for seatchange
+		if(state.data().dataEvent=='sendsuccess' || state.data().dataEvent=='sendfail'){
+			console.log(state.data().dataEvent);
+		}
 		
 		
 		//This returns us to the beginning???
@@ -169,7 +178,7 @@ cst.ui = (function ($) {
 		}
 		
 		if (state.status() == 'done'){
-		
+
 			//later do this better
 			$(config.instructions).hide();
 			$(config.question).hide();
