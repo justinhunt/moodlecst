@@ -139,6 +139,11 @@ cst.event = (function ($) {
 	
 	var newMessage = function(data){
 		var d = $.parseJSON(data);
+		//if the sender of the message was a diff task id, 
+		//kill the process.
+		if(d.data.messageTaskId != cst.state.data().taskId){
+			return;
+		}
 		// we fire all messages even to the sender.
 		//it is up to the event handlers to decide to ignore it or not
 		console.log('firing message');
@@ -151,6 +156,7 @@ cst.event = (function ($) {
 	};
 	
 	var sendMessage = function(data){
+		data.messageTaskId = cst.state.data().taskId;
 		var d = wrapper(data);
 		console.log('sending message' );
 		cst.event.socket().emit(

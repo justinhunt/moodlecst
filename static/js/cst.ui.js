@@ -70,10 +70,8 @@ cst.ui = (function ($) {
 		
 	};
 	
-	
-	var presenceChange = function(member){
-		var $initButton = $(config.initButton),
-				$users = $(config.users),
+	var updateUserBar = function(){
+		var $users = $(config.users),
 				usersOn = cst.event.usersOn(),
 				uclass = '',
 				userpic = '',
@@ -88,9 +86,9 @@ cst.ui = (function ($) {
 				var showrole=v;
 				if(cst.state.data().mode == 'studentstudent'){
 					if (showrole.toLowerCase()=='teacher'){
-						showrole='RATER';
+						showrole='TEACHER';
 					}else{
-						showrole='RATEE';
+						showrole='STUDENT';
 					}
 				}
 				if(v == cst.state.data().mySeat){
@@ -105,8 +103,13 @@ cst.ui = (function ($) {
 				$users.append('<span class="' + uclass + '">' + showrole.toTitleCase() + renderUser(username,userpic) + '</span>');
 			});
 		}
+	};
+	
+	
+	var presenceChange = function(member){
+		var $initButton = $(config.initButton);
 		
-		
+		updateUserBar();
 		
 		if (cst.state.status() == 'sessionInit' && cst.event.everybodyOn()){
 			$initButton.show();
@@ -403,12 +406,20 @@ cst.ui = (function ($) {
 			return;
 		}
 		console.log('questioning from event:' + state.data().dataEvent );
+		
+		//the adding of callbacks was very problematic here.
+		//got in loops a number of times. Here clear callbacks 
+		//this wil clear function answer callbacks too.
+		state.messageCallbacks.empty();
 	
 		//remove old callbacks, if we have them
+		/*
 		if(state.data().previousTaskId!=0){
 			var previousTask = cst.test.getTaskById(state.data().previousTaskId);
 			state.messageCallbacks.remove(cst.tasks[previousTask.subType].questionCallback);
+			
 		}
+		*/
 
 		
 		//add new ones if we have them
@@ -436,13 +447,17 @@ cst.ui = (function ($) {
 			return;
 		}
 		
+		
+		//adding and removing callbacks was tricky.
+		//now call empty in function question to make this work
 		//remove old callbacks, if we have them
+		/*
 		if(state.data().previousTaskId!=0){
 			console.log('removing callback');
 			var previousTask = cst.test.getTaskById(state.data().previousTaskId);
 			state.messageCallbacks.remove(cst.tasks[previousTask.subType].answerCallback);
 		}
-		
+		*/
 		//add new ones if we have them
 		if(state.data().taskId ){
 			var thetask = cst.test.getTaskById(state.data().taskId);
@@ -625,6 +640,7 @@ cst.ui = (function ($) {
 	var doSetSeat = function(newseat){
 		cst.state.messageCallbacks.empty();
 		cst.state.data('updateseat',{mySeat: newseat},true);
+		updateUserBar();
 		console.log('updated seat:nowseat' + newseat + ':' + cst.state.data().mySeat);
 	};
 	
