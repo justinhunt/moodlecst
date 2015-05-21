@@ -51,11 +51,15 @@ cst.ui = (function ($) {
 				}
 			});
 		}
+		
 		$(config.cancel).click(function(e){
 			e.preventDefault();
 			
 				if (confirm('This will discard any test data collected and return to the beginning.\n\nProceed?')){
 					if(cst.state.data().partnermode=='manual'){
+						var search = window.location.search;
+						search = search.replace("&seat=teacher", "");
+						search = search.replace("&seat=student", "");
 						document.location = './' + window.location.search;
 					}else{
 						cst.state.clearOutput();
@@ -265,6 +269,7 @@ cst.ui = (function ($) {
 		$(config.restart).show();
 		if (seat == 'teacher'){
 			$(config.quit).show();
+			$(config.swapRoles).show();
 		}
 		if(taskId > 0){
 			$(config.waiting).hide();
@@ -576,8 +581,9 @@ cst.ui = (function ($) {
 		
 		
 		$(config.question + ' .clickable').on('click',function(){
-		
-					cst.state.sendMessage({clickedQuestionItem: this.name, clickedQuestionItemValue: $(this).data('value')});
+					if (!$(this).hasClass('disabled')){
+						cst.state.sendMessage({clickedQuestionItem: this.name, clickedQuestionItemValue: $(this).data('value')});
+					}
 				});
 		
 		//break out another js object for questions?  factor in tasktypes..
@@ -650,7 +656,7 @@ cst.ui = (function ($) {
 		cst.state.messageCallbacks.empty();
 		cst.state.data('updateseat',{mySeat: newseat},true);
 		updateUserBar();
-		console.log('updated seat:nowseat' + newseat + ':' + cst.state.data().mySeat);
+		//console.log('updated seat:nowseat' + newseat + ':' + cst.state.data().mySeat);
 	};
 	
 	var takeAnswer = function(e){

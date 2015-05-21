@@ -161,7 +161,7 @@ cst.tasks.translate = (function ($) {
 		var qhtml = '<div id="qTranslateSource" class="questionTranslateSource">' + qData.content.source + '</div>';
 		qhtml += '<div id="qTranslateTarget" class="questionTranslateTarget">' + qData.content.target + '</div>';
 		qhtml += '<a id="qTranslateHint" name="hintbutton" class="clickable" data-value="unused">Show Hint</a>'; 
-		//qhtml +=  '<br /><a id="qTranslateDone" name="donebutton" class="clickable" data-value="unused">Done</a>';
+		qhtml +=  '<br /><a id="qTranslateDone" name="donebutton" class="clickable" data-value="unused">Finished</a>';
 		$question.html(qhtml);
 		cst.ui.initGoButton();
 	};
@@ -170,9 +170,9 @@ cst.tasks.translate = (function ($) {
 		$(qData.answers).each(function(i, x){
 			//$answers.append('<a href="javascript:;" data-id="' + x.id + '"><img id="q1Img" class="questionImage" src="' + x.img + '"/></a>');	
 			//var answerhtml='<div id="qTranslate" class="questionTranslate">' + x.text + '</div><br />';
-			var answerhtml = '<div id="qTranslateSource" class="questionTranslateSource" style="display: none">' + qData.content.source + '</div>';
+			var answerhtml = '<div id="qTranslateSource" class="questionTranslateSource" style="display: none"><i>hint:</i><br />' + qData.content.source + '</div>';
 			//answerhtml +=  '<br /><a id="qTranslateDone" name="donebutton" class="clickable" data-value="unused">Done</a>';
-			answerhtml += '<a class="answeritem" href="javascript:;" data-id="1">Done</a>';
+			//answerhtml += '<a class="answeritem" href="javascript:;" data-id="1">Done</a>';
 			$answers.append(answerhtml);
 		});
 		
@@ -189,7 +189,7 @@ cst.tasks.translate = (function ($) {
 						break;
 					case 'donebutton':
 							console.log('donebutton clicked here');
-							cst.ui.doTakeAnswer(1);
+							//cst.ui.doTakeAnswer(1);
 						break;
 					default:
 						console.log('another clickable clicked: ' + propname);
@@ -206,11 +206,11 @@ cst.tasks.translate = (function ($) {
 				switch(propvalue){
 					case 'hintbutton':
 						console.log('hintbutton clicked HERE');
-						$('#qTranslateHint').hide();
+						$('#qTranslateHint').addClass('disabled');
 						break;
 					case 'donebutton':
 							console.log('donebutton over THERE');
-							//cst.ui.doTakeAnswer(1);
+							cst.ui.doTakeAnswer(1);
 						break;
 					default:
 						console.log('another clickable clicked: ' + propname);

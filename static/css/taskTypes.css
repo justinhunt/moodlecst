@@ -59,19 +59,23 @@
 	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#4c4c4c', endColorstr='#131313',GradientType=0 ); /* IE6-9 */
 }
 .questionTranslateSource{
-	font-size: 2em;
-	width: 100%;
+	font-size: 1.5em;
+	width: 90%;
+	margin: auto;
 	text-align: center;
+	border: thistle;
+	border-style: dotted;
 }
 .questionTranslateTarget{
-	font-size: 2em;
-	width: 100%;
+	font-size: 1.5em;
+	width: 90%;
+	margin: auto;
 	text-align: center;
 	font-style: italic;
 }
 
 .questionConsent .questionInstructions{
-	font-size: .8em;
+	font-size: .4em;
 	padding: 2em;
 	display: none;
 	text-align: center;
