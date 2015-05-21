@@ -16,7 +16,9 @@ cst.event = (function ($) {
 		console.log('cst.events init...');
 
 		//socket = io.connect(cst.config.options().socketHost);
-		socket io.connect(window.location.protocol + '//' + window.location.host + ':' + cst.url().socketport);
+		
+		var socketServerUrl = window.location.protocol + '//' + window.location.hostname + ':' + cst.url().socketport;
+		socket = io.connect(socketServerUrl);
 
 		socket.on('connect', function(data){
 			console.log('connected to socket');
