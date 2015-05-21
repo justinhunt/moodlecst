@@ -88,7 +88,8 @@ cst.config = (function($){
 		if (typeof cst.url().tasks !== 'undefined'){
 			file = cst.url().tasks;
 		}
-		return cst.url().moodleurl + '/mod/moodlecst/jsonsessions.php?id='+ cst.url().activityid + '&sesskey=' + cst.url().sesskey;
+		var moodleurl = $('#moodleurl').attr('value');//could use cst.url().moodleurl in manual partner select (cos was passed in by form)
+		return moodleurl + '/mod/moodlecst/jsonsessions.php?id='+ cst.url().activityid + '&sesskey=' + cst.url().sesskey;
 	};
 	
 	var taskPath = function(){
@@ -96,7 +97,9 @@ cst.config = (function($){
 		if (typeof cst.url().tasks !== 'undefined'){
 			file = cst.url().tasks;
 		}
-		return  cst.url().moodleurl + '/mod/moodlecst/jsontasks.php?id='  + cst.url().activityid + '&sesskey=' + cst.url().sesskey;
+		
+		var moodleurl = $('#moodleurl').attr('value');//could use cst.url().moodleurl in manual partner select (cos was passed in by form)
+		return  moodleurl + '/mod/moodlecst/jsontasks.php?id='  + cst.url().activityid + '&sesskey=' + cst.url().sesskey;
 	};
 
 	//this needs to be called after options are loaded, to get the moodle url

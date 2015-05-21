@@ -16,8 +16,8 @@ cst.event = (function ($) {
 		console.log('cst.events init...');
 
 		//socket = io.connect(cst.config.options().socketHost);
-		
-		var socketServerUrl = window.location.protocol + '//' + window.location.hostname + ':' + cst.url().socketport;
+		var socketport = $('#socketport').attr('value');//could use cst.url().socketport in manual partner select (cos was passed in by form)
+		var socketServerUrl = window.location.protocol + '//' + window.location.hostname + ':' + socketport;
 		socket = io.connect(socketServerUrl);
 
 		socket.on('connect', function(data){
