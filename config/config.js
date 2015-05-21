@@ -1,7 +1,7 @@
 {
 "options": {
-	"socketHost" : "http://my.moodleserver.com:8081",
-	"moodleUrl" : "http://my.moodleserver.com"
+	"socketHost" : "no longer used",
+	"moodleUrl" : "no longer used"
 },
 "seats": {
 	"Student" : {
@@ -18,11 +18,11 @@
 		"Descriptions" : {
 			"Respondent" : [ 
 				"相手の説明を聞いて、説明されている言葉を正しく答えた時点で、「Done」のボタンをタッチして下さい。",
-				"Please touch the \"Done\" button below when you have correctly guessed the word that the speaker is describing." 
+				"Touch the \"Done\" button below when you have correctly guessed the word that the speaker is describing." 
 			],
 			"Speaker" : [
 				"次の言葉を使わずに、その言葉を説明して下さい。相手が正しく答えたら、相手に教えてあげて下さい。「Go」のボタンをタッチして、始めて下さい。",
-				"Please describe the word below without using it. When your partner has guessed the word, tell him/her. Touch \"Go\" to begin."
+				"Describe the word below without using it. When your partner has guessed the word, tell him/her. Touch \"Go\" to begin."
 			]
 		}
 	},
@@ -30,11 +30,11 @@
 		"Descriptions" : {
 			"Respondent" : [ 
 				"相手に説明されている絵をタッチして下さい。",
-				"Please touch the picture being described by the speaker." 
+				"Touch the picture being described by the speaker." 
 			],
 			"Speaker" : [
 				"下に表示されている絵を説明して下さい。「Go」のボタンをタッチして、始めて下さい。",
-				"Please describe the picture below. Touch \"Go\" to begin."
+				"Describe the picture below. Touch \"Go\" to begin."
 			]
 		}
 	},
@@ -46,19 +46,19 @@
 			],
 			"Speaker" : [
 				"次のオーディオを聞いて、その内容を相手に説明して下さい。ヘッドフォンをつけ、「Go」のボタンをタッチして始めて下さい。",
-				"Please listen to the following audio and explain it to your partner. Please put on the headphones and touch \"Go\" to begin."
+				"Listen to the following audio and explain it to your partner. Put on the headphones and touch \"Go\" to begin."
 			]
 		}
 	},
 	"translate": {
 		"Descriptions" : {
 			"Respondent" : [ 
-				"相手の言うことを聞いて、正しく通訳できた時点で、「Done」のボタンをタッチして下さい。",
-				"Please touch the \"Done\" button below when you have correctly translated what the speaker said." 
+				"相手の言うことを聞いて、正しく通訳して下さい。",
+				"Listen to your partner, and translate the phrase you hear." 
 			],
 			"Speaker" : [
-				"相手に次の分を言って、相手が正しく通訳できたら、相手に教えてあげて下さい。「Go」のボタンをタッチして、始めて下さい。",
-				"Please read the sentence below to your partner. When your partner has translated the word, tell him/her. Touch \"Go\" to begin."
+				"相手に次の分を言って、相手が正しく通訳できたら、「Finished」のボタンをタッチしてください。",
+				"Read the sentence below to your partner. When they have translated it, touch the \"Finished\" button."
 			]
 		}
 	},
