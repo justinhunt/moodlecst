@@ -27,7 +27,7 @@ var handler = function(req, res){};
 webserver.get("/", function(req, res){
 	res.render(__dirname + '/views/index.ejs', {
 		layout:false,
-		moodle: {sesskey: req.param('sesskey'), activityid: req.param('activityid'), userid: req.param('userid'), mode: req.param('mode'), partnermode: req.param('partnermode')},
+		moodle: {sesskey: req.param('sesskey'), activityid: req.param('activityid'), socketport: config.socketServerPort, moodleurl: config.moodleUrl, userid: req.param('userid'), mode: req.param('mode'), partnermode: req.param('partnermode')},
 		locals: { cacheKey: '?t=' + (new Date()).getTime() }
 	});
 });

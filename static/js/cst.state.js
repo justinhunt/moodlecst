@@ -282,9 +282,10 @@ systeminit
 	var fetchMoodleData = function(fetchparams){
 		fetchparams.sesskey = data.sesskey;
 		fetchparams.id = data.activityId;
+		//cst.config.options().moodleUrl + '/mod/moodlecst/jsonmoodledata.php',
 		$.ajax({
 			type: 'POST',
-			url: cst.config.options().moodleUrl + '/mod/moodlecst/jsonmoodledata.php',
+			url: cst.url().moodleurl + '/mod/moodlecst/jsonmoodledata.php',
 			data: fetchparams,
 			success: function(data, textStatus, jqXHR){
 				switch(data.type){
@@ -317,10 +318,10 @@ systeminit
 		
 		
 		debugger;
-
+		//url: cst.config.options().moodleUrl + '/mod/moodlecst/jsonresults.php',
 		$.ajax({
 			type: 'POST',
-			url: cst.config.options().moodleUrl + '/mod/moodlecst/jsonresults.php',
+			url: cst.url().moodleurl + '/mod/moodlecst/jsonresults.php',
 			data: { 
 				'results' : JSON.stringify(output),
 				'sesskey': data.sesskey,
