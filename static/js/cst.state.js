@@ -229,7 +229,6 @@ systeminit
 		var currentTask,
 			taskAnswer,
 			answer,
-			answer,
 			isCorrect,
 			currentTaskId;
 
@@ -246,7 +245,7 @@ systeminit
 		
 		
 		//this is a hack ... need to assign correct better for some tasks
-		isCorrect=true;
+		isCorrect=false;
 		if (typeof taskAnswer != 'undefined'){
 			isCorrect = (taskAnswer.id == answerId);
 		}

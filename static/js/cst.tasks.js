@@ -161,7 +161,10 @@ cst.tasks.translate = (function ($) {
 		var qhtml = '<div id="qTranslateSource" class="questionTranslateSource">' + qData.content.source + '</div>';
 		qhtml += '<div id="qTranslateTarget" class="questionTranslateTarget">' + qData.content.target + '</div>';
 		qhtml += '<a id="qTranslateHint" name="hintbutton" class="clickable" data-value="unused">Show Hint</a>'; 
-		qhtml +=  '<br /><a id="qTranslateDone" name="donebutton" class="clickable" data-value="unused">Finished</a>';
+		qhtml += '<div id="qTranslateDoneContainer" class="qTranslateDoneContainer">';
+		qhtml +=  '<a id="qTranslateDoneCorrect" name="donebutton" class="clickable" data-value="0">Not Correct</a>';
+		qhtml +=  '<a id="qTranslateDoneIncorrect" name="donebutton" class="clickable" data-value="1">Correct</a>';
+		qhtml += '<div/>';
 		$question.html(qhtml);
 		cst.ui.initGoButton();
 	};
@@ -188,7 +191,7 @@ cst.tasks.translate = (function ($) {
 							$('#qTranslateSource').show();
 						break;
 					case 'donebutton':
-							console.log('donebutton clicked here');
+							console.log('donebutton clicked there');
 							//cst.ui.doTakeAnswer(1);
 						break;
 					default:
@@ -209,8 +212,8 @@ cst.tasks.translate = (function ($) {
 						$('#qTranslateHint').addClass('disabled');
 						break;
 					case 'donebutton':
-							console.log('donebutton over THERE');
-							cst.ui.doTakeAnswer(1);
+							console.log('donebutton over HERE');
+							cst.ui.doTakeAnswer(mdata.clickedQuestionItemValue);
 						break;
 					default:
 						console.log('another clickable clicked: ' + propname);
