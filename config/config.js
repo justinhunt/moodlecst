@@ -109,6 +109,18 @@
 				"" 
 			]
 		}
+	},
+	"partnerconfirm": {
+		"Descriptions" : {
+			"Respondent" : [ 
+				"パートナー情報",
+				"Partner Information" 
+			],
+			"Speaker" : [ 
+				"パートナー情報",
+				"Partner Information" 
+			]
+		}
 	}
 }
 }

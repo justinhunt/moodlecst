@@ -27,6 +27,7 @@ cst.ui = (function ($) {
 			agree: '#agree',
 			consent: '#consent',
 			begin: '#begin',
+			questiontimer: '#questiontimer',
 			generalInstructions: '#generalInstructions'
 		};
 	
@@ -36,6 +37,7 @@ cst.ui = (function ($) {
 		cst.state.callbacks.add(question);
 		cst.state.callbacks.add(answers);
 		cst.state.callbacks.add(status);
+		cst.state.callbacks.add(initQuestionTimerDiv);
 		cst.event.pusherCallbacks.add(workingChange);
 		cst.event.presenceChanges.add(presenceChange);
 		cst.timer.tickCallbacks.add(timerTick);
@@ -88,29 +90,33 @@ cst.ui = (function ($) {
 				username='';
 
 		$users.show().empty();
-		$users.append('<span class="">' + cst.state.data().channel + ': </span>');
+		
+		//I don't think we need to show a channel  .... do we?
+		//$users.append('<span class="">' + cst.state.data().channel + ': </span>');
 
 		
 		if (usersOn.length > 0){
 			$.each(usersOn, function(i,v){
-				var showrole=v;
-				if(cst.state.data().mode == 'studentstudent'){
-					if (showrole.toLowerCase()=='teacher'){
-						showrole='TEACHER';
-					}else{
-						showrole='STUDENT';
-					}
-				}
+				var therole=v;
+				var showRole='';
+
 				if(v == cst.state.data().mySeat){
-					uclass = 'me';
+					uclass = 'profile profileme';
 					username=cst.state.data().userName;
 					userpic=cst.state.data().userPic;
+					showRole='ME';
 				}else{
-					uclass='';
+					uclass='profile profilepartner';
 					username=cst.state.data().partnerName;
 					userpic=cst.state.data().partnerPic;
+					showRole='PARTNER';
 				}
-				$users.append('<span class="' + uclass + '">' + showrole.toTitleCase() + renderUser(username,userpic) + '</span>');
+				
+				if(cst.state.data().roleConfirmed || cst.state.data().mode=='teacherstudent'){
+					showRole = therole.toTitleCase();	
+				}
+				//we don't use userpic any more, but we could. Will need to change css #users width to 250
+				$users.append('<div class="' + uclass + '">' + showRole + renderUser(username,userpic) + '</div>');
 			});
 		}
 	};
@@ -131,7 +137,7 @@ cst.ui = (function ($) {
 	
 	//just a filler for now
 	var renderUser = function(username,userpic){
-		//return '(' + username + ')' + '<br /><img src="' + userpic + '" class="userpic"/>)';
+		//return '<img src="' + userpic + '" class="userpic"/><div class="username">' + username + '</div>';
 		return '(' + username + ')';
 	}
 	
@@ -243,8 +249,32 @@ cst.ui = (function ($) {
 	};
 	
 	var timerTick = function(d){
+	
 		var $timer = $(config.timer);
+		var $questiontimer = $(config.questiontimer);
 		$timer.html(formatTime(d.date) + ' - ' + d.offset + ' - ' + d.latency);
+		
+		var props = cst.config.testProperties();
+		if(props.timetarget!='ignore'){
+			var td = cst.state.data();
+			if(td.taskStart>0){
+				var timedifference = (d.date.getTime() - td.taskStart) / 1000;
+				var currentTask = cst.test.getTaskById(td.taskId);
+				var timecount = currentTask.timetarget - timedifference;
+				if(timecount<0){timecount =0;}
+				var date = new Date(null);
+				date.setSeconds(timecount); // specify value for SECONDS here
+				var showcount = date.toISOString().substr(11, 8);
+				$questiontimer.html(showcount);
+				if(timecount ==0 && props.timetarget=='force' && cst.state.data().mySeat=='teacher' ){
+					doNext();
+				}else if(timecount < 16){
+					timecount = Math.floor(timecount);
+					$questiontimer.removeClass('timeleft' + timecount+1);
+					$questiontimer.addClass('timeleft' + timecount);
+				}
+			}
+		}
 	};
 	
 	
@@ -511,6 +541,15 @@ cst.ui = (function ($) {
 		});
 	};
 	
+	var initQuestionTimerDiv = function(state){
+		//if not initing task, return without doing anything
+		if(!(state.data().dataEvent =='initteststate' || state.data().dataEvent =='newtask')){
+			return;
+		}
+		var $questiontimer = $(config.questiontimer);
+		$questiontimer.removeClass();
+		$questiontimer.empty;
+	};
 
 	var initGoButton = function(doThisToo){
 		var $go = $(config.go),
@@ -654,7 +693,7 @@ cst.ui = (function ($) {
 	
 	var doSetSeat = function(newseat){
 		cst.state.messageCallbacks.empty();
-		cst.state.data('updateseat',{mySeat: newseat},true);
+		cst.state.data('updateseat',{mySeat: newseat, roleConfirmed: true},true);
 		updateUserBar();
 		//console.log('updated seat:nowseat' + newseat + ':' + cst.state.data().mySeat);
 	};

@@ -97,6 +97,70 @@ cst.tasks.picture = (function ($) {
 	};
 } (jQuery));
 
+cst.tasks.partnerconfirm = (function ($) {
+	"use strict";
+	var partnerHalfConfirmed = false;
+	
+	var getProfileHtml = function(){
+		var me = '<div class="partnerconfirm_profile">';
+		me += '<img id="partnerconfirm_me_image" class="partnerconfirm_image" src="' + cst.state.data().userPic + '"/>';
+		me += '<div class="username">' + cst.state.data().userName + '</div>';
+		me +='</div>';
+
+		var partner = '<div class="partnerconfirm_profile">';
+		partner = '<img id="partnerconfirm_partner_image" class="partnerconfirm_image" src="' + cst.state.data().partnerPic + '"/>';
+		partner += '<div class="username">' + cst.state.data().partnerName + '</div>';
+		partner +='</div>';
+		var button = '<a class="clickable partnerconfirm_button" name="okbutton" href="javascript:;" data-value="ok">OK</a>';
+		return '<div class="partnerconfirm_container">' + me + partner + button + '</div>';
+	};
+	
+	// Private
+	var initQuestion = function($question, qData, state){
+		$question.empty();
+		$question.append(this.getProfileHtml());
+		$question.show();
+	};
+	
+	var initAnswers = function($answers, qData, state){
+		$answers.empty();
+		$answers.append(this.getProfileHtml());
+	};
+	
+	var answerCallback = function(mdata){
+		console.log('answercallback:');
+		console.log(mdata);
+		if(this.partnerHalfConfirmed){
+			cst.ui.doNext();
+			return;
+		}else{
+			this.partnerHalfConfirmed=true;
+		}
+		if(mdata.clickedAnswerItem == 'okbutton'){
+				$('#answers').hide();
+				cst.ui.showWaiting(true);
+		}
+	};
+	
+	var questionCallback = function(mdata){
+		console.log('questioncallback:');
+		console.log(mdata);
+		if(mdata.clickedQuestionItem == 'okbutton'){
+				$('#question').hide();
+				cst.ui.showWaiting(true);
+		}
+	};
+	// Public
+	return { // { must be on same line as return else semicolon gets inserted
+		getProfileHtml: getProfileHtml,
+		partnerHalfConfirmed: partnerHalfConfirmed,
+		initQuestion: initQuestion,
+		initAnswers: initAnswers,
+		answerCallback: answerCallback,
+		questionCallback: questionCallback
+	};
+} (jQuery));
+
 cst.tasks.choice = (function ($) {
 	"use strict";
 

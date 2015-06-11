@@ -13,8 +13,9 @@ cst = (function ($) {
 	};
 	
 	var init = function(){
-		//this should never show in Moodle era. 
-		if (typeof cst.url().seat === 'undefined' || typeof cst.url().channel === 'undefined'){
+		//if (typeof cst.url().seat === 'undefined' || typeof cst.url().channel === 'undefined'){
+		//if we have no channel, and we not setup for auto asign channel
+		if (typeof cst.url().channel === 'undefined' && !(typeof cst.url().partnermode != 'undefined' &&  cst.url().partnermode === 'auto')){
 			$('#setup').show();
 			return;
 		}

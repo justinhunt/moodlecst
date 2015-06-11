@@ -15,7 +15,30 @@
 	max-width: 150px;
 	max-height: 150px;
 }
+ div.partnerconfirm_container{
+	padding-left: .2em;
+	display: block;
+	width: 250px;
+	margin: auto;
+	text-align: center;
+}
+ div.partnerconfirm_profile{
+	padding-left: .5em;
+	display: block;
+	width: 120px;
+	float: left;
+	text-align: center;
+}
+.partnerconfirm_image {
+	width: 100px;
+}
 
+#answers a.partnerconfirm_button, #question a.partnerconfirm_button{
+  margin-top: 2.5%;
+  margin-left: auto;
+  margin-right: auto;
+  width: 300px;
+}
 
 #question.taboo{
 	text-align: center;

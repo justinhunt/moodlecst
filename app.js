@@ -27,7 +27,7 @@ var handler = function(req, res){};
 webserver.get("/", function(req, res){
 	res.render(__dirname + '/views/index.ejs', {
 		layout:false,
-		moodle: {sesskey: req.param('sesskey'), activityid: req.param('activityid'), socketport: config.socketServerPort, moodleurl: config.moodleUrl, userid: req.param('userid'), mode: req.param('mode'), partnermode: req.param('partnermode')},
+		moodle: {sesskey: req.param('sesskey'), activityid: req.param('activityid'), socketport: config.socketServerPort, moodleurl: config.moodleUrl, userid: req.param('userid'), mode: req.param('mode'), seat: req.param('seat'), partnermode: req.param('partnermode')},
 		locals: { cacheKey: '?t=' + (new Date()).getTime() }
 	});
 });
@@ -110,92 +110,110 @@ io.sockets.on('connection', function (socket) {
 			mems[clients[i].seat] = clients[i].id;
 		};
 		return mems;
-	}
-	
-
+	};
 	
 	socket.on('join', function(data){
-	console.log(data);
-		//in manual mode this is simple, we just do what we are told
-		if(data.partnermode=='manual'){
-			socket.join(data.room);
-			socket['seat'] = data.seat;
-			socket['room'] = data.room;		//used mostly to tell the room that you left
-			console.log('going to room:seat' + data.room + ':' + data.seat);
-			io.sockets.in(data.room).emit('presenceChange', memberChange(data.room));
+		console.log(data);
+	
+		
+		//If we have no queue start one
+		if(typeof waiting[data.activity] == 'undefined'){
+			waiting[data.activity]=Array();
+			console.log('creating queue for activity:' + data.activity);
+		}
+		//if noone is on the queue, no point trying to find a partner
+		//add to queue and leave
+		if(waiting[data.activity].length==0){
+			waiting[data.activity].push({socket: socket, data: data});
+			console.log('pushed to queue start: ' + waiting[data.activity].length + 'waiting');
+			return;
+		}
+
+		
+		//depending on auto mode (any partner will do)
+		// or manual mode (same room partner only)
+		//scan queue for a partner, create a unique room, join it,and let everyone know
+		//check for bad connections on the way
+		
+		//waiter is the partner who is waiting for us
+		var waiter =false;
+		//shouldn't ever get in an endless loop, but it would kill the server, so we add a firebreak
+		var loopbuster=0; 
+		while(waiter==false && waiting[data.activity].length>0 && loopbuster<1000){
+			loopbuster++;
+			switch (data.mode){
+				//student to student doesn't care about teacher or student(yet)
+				case 'studentstudent':
+					//auto mode, any partner will do
+					if(data.partnermode=='auto'){
+							waiter = waiting[data.activity].shift();
+					}else{
+						//manual mode, check waiter has specified the same room
+						for (var waiterindex=0;waiterindex<waiting[data.activity].length;waiterindex++){
+							if(data.room==waiting[data.activity][waiterindex].data.room){
+										waiter = waiting[data.activity][waiterindex];
+										waiting[data.activity].splice(waiterindex, 1);
+							}//end of same room check
+						}//end of loop
+					}
+					break;
+				//teacher student does care about who is a teacher from the outset
+				case 'teacherstudent':
+				default:
+					for (var waiterindex=0;waiterindex<waiting[data.activity].length;waiterindex++){
+						//if auto mode, or waiter has specified the same room, join
+						if(data.partnermode=='auto' || 
+							data.room==waiting[data.activity][waiterindex].data.room){
+								if(waiting[data.activity][waiterindex].data.seat!=data.seat){
+									waiter = waiting[data.activity][waiterindex];
+									waiting[data.activity].splice(waiterindex, 1);
+								}//end of seat check
+						}//end of mode check
+					}//end of loop
+			}
+			//if we have a bad connection, drop it and move on
+			if(waiter && waiter.socket.disconnected){waiter=false;}
+		}
+		
+		//couldn't find a partner, add self to queue and move on.
+		if(waiter==false){
+			waiting[data.activity].push({socket: socket, data: data});
+			console.log('pushed to queue end: ' + waiting[data.activity].length + 'waiting');
 			return;
 		}
 		
-		//the rest of this is auto mode
-		if(typeof waiting[data.activity] == 'undefined'){
-			waiting[data.activity]=Array();
-console.log('creating queue for activity:' + data.activity);
-		}
-		if(waiting[data.activity].length==0){
-			waiting[data.activity].push({socket: socket, data: data});
-console.log('pushed to queue start: ' + waiting[data.activity].length + 'waiting');
-		}else{
-			//from here on this could be a bit more elegant.
-			//to refactor later. J .20150420
-			
-			//determine how to assemble pairs, and fetch the correct user
-			//check for bad connections on the way
-			//will need to fix this up once we pair students and teachers
-			var waiter =false;
-			var loopbuster=0; //just in case
-			while(waiter==false && waiting[data.activity].length>0 && loopbuster<1000){
-				loopbuster++;
-				switch (data.mode){
-					case 'studentstudent':
-						waiter = waiting[data.activity].shift();
-						break;
-					case 'teacherstudent':
-					default:
-						for (var waiterindex=0;waiterindex<waiting[data.activity].length;waiterindex++){
-							if(waiting[data.activity][waiterindex].data.seat!=data.seat){
-								waiter = waiting[data.activity][waiterindex];
-								waiting[data.activity].splice(waiterindex, 1);
-							}
-						}
-				}
-				//if we have a bad connection, drop it and move on
-				if(waiter && waiter.socket.disconnected){waiter=false;}
-			}
-			
-			
-			if(waiter==false){
-				waiting[data.activity].push({socket: socket, data: data});
-console.log('pushed to queue end: ' + waiting[data.activity].length + 'waiting');
-				return;
-			}
-console.log('popped');
-			var socket2 = waiter.socket;
-			var data2 = waiter.data;
-			var roomname = Math.floor((Math.random() * 1000000) + 1);
-console.log('roomname:' + roomname);
-			//if we need to determine role, lets do that here
-			//we still have a 'teacher' role even in student/student
-			if(data.mode.trim() == 'studentstudent'){
-				if(data.seat.trim() == 'student'){
-					data2.seat='teacher';
-					data.seat='student';
-				}else{
-					data2.seat='student';
-					data.seat='teacher';
-				}
-			}
+		//got a partner and popped them off teh queue
+		//set up the room and other housekeeping
+		console.log('popped');
+		var socket2 = waiter.socket;
+		var data2 = waiter.data;
+		var roomname = Math.floor((Math.random() * 1000000) + 1);
+		console.log('roomname:' + roomname);
 
-			socket.join(roomname);
-			socket2.join(roomname);
-			socket['seat'] = data.seat;
-			socket2['seat'] = data2.seat;
-			console.log('socket1seat:' + socket['seat']);
-			console.log('socket2seat:' + socket2['seat']);
-			
-			socket.emit('joinedRoom', {room: roomname, seat: data.seat, partner: data2.user});
-			socket2.emit('joinedRoom', {room: roomname, seat: data2.seat, partner: data.user});
-			io.sockets.in(roomname).emit('presenceChange', memberChange(roomname));
+		//if we are in student/student mode, allocate roles 
+		//later they can choose, but we need a role to begin with
+		if(data.mode.trim() == 'studentstudent'){
+			if(data.seat.trim() == 'student'){
+				data2.seat='teacher';
+				data.seat='student';
+			}else{
+				data2.seat='student';
+				data.seat='teacher';
+			}
 		}
+
+		//join the rooms, and send out the notifications.
+		socket.join(roomname);
+		socket2.join(roomname);
+		socket['seat'] = data.seat;
+		socket2['seat'] = data2.seat;
+		console.log('socket1seat:' + socket['seat']);
+		console.log('socket2seat:' + socket2['seat']);
+		
+		socket.emit('joinedRoom', {room: roomname, seat: data.seat, partner: data2.user});
+		socket2.emit('joinedRoom', {room: roomname, seat: data2.seat, partner: data.user});
+		io.sockets.in(roomname).emit('presenceChange', memberChange(roomname));
+	
 	});	
 	
 	socket.on('stateChange', function (data) {

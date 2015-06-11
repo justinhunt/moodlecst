@@ -40,6 +40,7 @@ systeminit
 	// Private
 	var 
 		data = {
+			roleConfirmed: false,
 			dataEvent: '',
 			channel: '',
 			sessionId: 0,		//sync
@@ -55,6 +56,7 @@ systeminit
 			studentStat: '',
 			teacherStat: '',
 			sharedStat: '',
+			testProperties: {},
 			consentGiven: false,
 			beginClicked: false,
 			sesskey: '',
@@ -77,6 +79,7 @@ systeminit
 	var syncData = function(){
 		return {
 			dataEvent: data.dataEvent,
+			roleConfirmed: data.roleConfirmed,
 			raterId: data.raterId,
 			studentId: data.studentId,
 			sessionId: data.sessionId,
@@ -280,8 +283,13 @@ systeminit
 	//returned data = {type: 'partnerdetails', userName: 'Bob Jones', userPic: 'http://path.to.pic'}
 	
 	var fetchMoodleData = function(fetchparams){
-		fetchparams.sesskey = data.sesskey;
-		fetchparams.id = data.activityId;
+		if(!fetchparams.hasOwnProperty('sesskey')){
+			fetchparams.sesskey = data.sesskey;
+		}
+		if(!fetchparams.hasOwnProperty('id')){
+			fetchparams.id = data.activityId;
+		}
+		
 		//could use cst.url().moodleurl in manual partner select (cos was passed in by form)
 		var moodleurl = $('#moodleurl').attr('value');
 		$.ajax({
@@ -291,11 +299,11 @@ systeminit
 			success: function(data, textStatus, jqXHR){
 				switch(data.type){
 					case 'partnerdetails':
-						cst.state.data('partnerdetails',{userName: data.userName, userPic: data.userPic},true);
+						cst.state.data('partnerdetails',{partnerName: data.userName, partnerPic: data.userPic},true);
 						break;
 					case 'mydetails':
-					default:
-						cst.state.data('mydetails',{partnerName: data.userName, userPic: data.userPic},true);
+						cst.state.data('mydetails',{userName: data.userName, userPic: data.userPic},true);
+						break;
 				}
 			},
 			error: function(jqXHR, textStatus, errorThrown){
