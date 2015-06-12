@@ -24,6 +24,13 @@ cst.timer = (function ($) {
 		
 	};
 	
+	var  fetchSecondsDisplay = function(seconds){
+		var date = new Date(null);
+		date.setSeconds(seconds); // specify value for SECONDS here
+		var showcount = date.toISOString().substr(11, 8);
+		return showcount;
+	}
+	
 	var getLatency = function(){
 		return latency;
 	};
@@ -121,6 +128,7 @@ cst.timer = (function ($) {
 		elapsed: elapsed,
 		remaining: remaining,
 		active: active,
+		fetchSecondsDisplay: fetchSecondsDisplay,
 		changeCallbacks: changeCallbacks,
 		tickCallbacks: tickCallbacks,
 		getLatency: getLatency,

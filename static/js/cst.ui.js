@@ -198,6 +198,9 @@ cst.ui = (function ($) {
 			$thanks.show();
 			$thanks.find('#failDetail').html('');
 			$thanks.find('#successDetail').html('');
+			$thanks.find('.sessionResults').html('');
+			$thanks.find('.sessionResults').html(prepareResultsForDisplay(cst.state.data().finalResults));
+			
 			
 			if (state.myStatus() == 'sending'){
 				$thanks.find('#sending').show();
@@ -216,6 +219,7 @@ cst.ui = (function ($) {
 			}
 			if (state.myStatus() == 'sendFail'){
 				$thanks.find('#sendFail').show();
+				$thanks.find('.sessionResults').html(prepareResultsForDisplay(cst.state.data().finalResults));
 				$thanks.find('#failDetail').html(cst.state.data().sendResponse).show();
 			}
 			
@@ -242,6 +246,26 @@ cst.ui = (function ($) {
 		}
 	};
 	
+	var prepareResultsForDisplay = function(output){
+		var returnhtml = '';
+		var totaltime = 0;
+		var totalq=0;
+		var totalcorrect=0;
+		$.each(output,function(i,answer){
+				if(answer.slidepairid > 0){
+					totaltime += answer.duration;
+					totalq++;
+					if(answer.correct){totalcorrect++;}
+				}
+			}
+		);
+		debugger;
+		returnhtml +='Total Time: ' + cst.timer.fetchSecondsDisplay(totaltime/1000) + '<br/>';
+		returnhtml +='Total Correct: ' + totalcorrect + '/' + totalq; 
+		return returnhtml;
+	
+	};
+	
 	var timerSet = function(timer){
 		var $timer = $(config.timer);
 		console.log('timerset called');
@@ -262,9 +286,7 @@ cst.ui = (function ($) {
 				var currentTask = cst.test.getTaskById(td.taskId);
 				var timecount = currentTask.timetarget - timedifference;
 				if(timecount<0){timecount =0;}
-				var date = new Date(null);
-				date.setSeconds(timecount); // specify value for SECONDS here
-				var showcount = date.toISOString().substr(11, 8);
+				var showcount = cst.timer.fetchSecondsDisplay(timecount);
 				$questiontimer.html(showcount);
 				if(timecount ==0 && props.timetarget=='force' && cst.state.data().mySeat=='teacher' ){
 					doNext();
@@ -543,12 +565,17 @@ cst.ui = (function ($) {
 	
 	var initQuestionTimerDiv = function(state){
 		//if not initing task, return without doing anything
-		if(!(state.data().dataEvent =='initteststate' || state.data().dataEvent =='newtask')){
+		if(!(state.data().dataEvent =='initteststate' || state.data().dataEvent =='taskend')){
+			debugger;
+			console.log('exiting on ' +  state.data().dataEvent );
 			return;
+		}else{
+			debugger;
+			console.log('entering on ' +  state.data().dataEvent );
 		}
 		var $questiontimer = $(config.questiontimer);
 		$questiontimer.removeClass();
-		$questiontimer.empty;
+		$questiontimer.empty();
 	};
 
 	var initGoButton = function(doThisToo){
@@ -718,6 +745,7 @@ cst.ui = (function ($) {
 	// Public
 	return { // { must be on same line as return else semicolon gets inserted
 		init: init,
+		prepareResultsForDisplay: prepareResultsForDisplay,
 		startInstructions: startInstructions,
 		stopInstructions: stopInstructions,
 		initInstructions: initInstructions,

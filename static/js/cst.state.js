@@ -57,6 +57,7 @@ systeminit
 			teacherStat: '',
 			sharedStat: '',
 			testProperties: {},
+			finalResults: {},
 			consentGiven: false,
 			beginClicked: false,
 			sesskey: '',
@@ -94,7 +95,8 @@ systeminit
 			consentGiven: data.consentGiven,
 			beginClicked: data.beginClicked,
 			clickedAnswerItem: data.clickedAnswerItem,
-			clickedQuestionItem: data.clickedQuestionItem
+			clickedQuestionItem: data.clickedQuestionItem,
+			finalResults: data.finalResults
 		};
 	};
 	
@@ -113,11 +115,12 @@ systeminit
 		if (data.mySeat == ''){
 			throw "Seat undefined, myStatus called, that's bad.";
 		}
-		var obj = {};
-		obj[data.mySeat.toLowerCase()+"Stat"] = value;
 		
+		//status
 		if (typeof value !== 'undefined'){
-			cst.state.data(obj);
+			var obj = {};
+			obj[data.mySeat.toLowerCase()+"Stat"] = value;
+			cst.state.data('statuschange',obj);
 		}
 		return cst.state.data()[data.mySeat.toLowerCase()+"Stat"];
 	};
@@ -322,7 +325,8 @@ systeminit
 			studentStat: '',
 			teacherStat: '',
 			taskStart: 0,
-			taskEnd:0
+			taskEnd:0,
+			finalResults: output
 		});
 		
 		

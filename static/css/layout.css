@@ -66,13 +66,13 @@ body{
 #users{
 	left: 0;
 	right: inherit;
-	width: 380px;
+	width: 400px;
 	display: block;
 }
  div.profile{
 	padding-left: .2em;
 	display: block;
-	width: 120px;
+	width: 195px;
 	float: left;
 	text-align: center;
 }
@@ -220,7 +220,10 @@ div.profile img{
 
 #reset{
 	width: 50%;
-	margin: 0 auto;
+	margin-left: auto;
+	margin-right: auto;
+	margin-top: 1em;
+	margin-bottom: 1em;
 }
 
 #agree, #begin{
@@ -245,10 +248,30 @@ div.profile img{
 }
 
 #thanks .status{
+	padding-top: 1em;
 	width: 50%;
 	margin: auto;
+	text-align: center;
 }
 
+#thanks .thanks{
+	width: 50%;
+	margin: auto;
+	text-align: center;
+}
+
+#thanks .sessionResults{
+	width: 50%;
+	background: white;
+	border-size: 2px;
+	border: 2px;
+	border-color: blue;
+	border-style: solid;
+	text-align: center;
+	margin: auto;
+	padding: 2em;
+	color: blue;
+}
 
 #thanks #sendSuccess{
 	color: #37F72D;
