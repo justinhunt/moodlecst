@@ -289,7 +289,8 @@ cst.ui = (function ($) {
 				var showcount = cst.timer.fetchSecondsDisplay(timecount);
 				$questiontimer.html(showcount);
 				if(timecount ==0 && props.timetarget=='force' && cst.state.data().mySeat=='teacher' ){
-					doNext();
+					//doNext(); //this will not save a score
+					doTakeAnswer(0); //this will save score of zero. Oh no.
 				}else if(timecount < 16){
 					timecount = Math.floor(timecount);
 					$questiontimer.removeClass('timeleft' + timecount+1);
