@@ -98,7 +98,15 @@
 }
 .qTranslateDoneContainer{
 	padding-top: 30px;
-	display: flex;
+	display: inline-block;
+	width: 100%;
+}
+
+.qTranslateDoneContainer .clickable{
+	width: 28%;
+	float: left;
+	margin-left: 10%;
+	margin-right: 10%;
 }
 
 .questionConsent .questionInstructions{

@@ -121,7 +121,8 @@ cst.ui = (function ($) {
 				}
 				
 				if(cst.state.data().roleConfirmed || cst.state.data().mode=='teacherstudent'){
-					showRole = therole.toTitleCase();	
+					showRole = therole.toTitleCase();
+					showRole = showRole.charAt(0) + ':';
 				}
 				//we don't use userpic any more, but we could. Will need to change css #users width to 250
 				$users.append('<div class="' + uclass + '">' + showRole + renderUser(username,userpic) + '</div>');
