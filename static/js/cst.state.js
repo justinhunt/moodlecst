@@ -203,14 +203,6 @@ systeminit
 			currentTaskId;
 
 		currentTaskId=cst.state.data().taskId;
-
-		if(currentTaskId > 0){
-			currentTask  = cst.test.getTaskById();	
-			if (currentTask){
-				currentTaskId = currentTask.id;
-			}
-		}
-
 		
 		//set answered, for callbacks
 		if(currentTaskId !=0){

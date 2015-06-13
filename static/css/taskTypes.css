@@ -12,8 +12,8 @@
 	float: left;
 }
 #answers.picture img{
-	max-width: 150px;
-	max-height: 150px;
+	width: auto;
+	height: 150px;
 }
  div.partnerconfirm_container{
 	padding-left: .2em;

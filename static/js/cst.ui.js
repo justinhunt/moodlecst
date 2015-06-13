@@ -43,7 +43,7 @@ cst.ui = (function ($) {
 		cst.timer.tickCallbacks.add(timerTick);
 		
 		document.title = cst.state.data().mySeat.toUpperCase().substring(0,1) + ':' + cst.state.data().channel.toUpperCase();
-		
+		/*
 		if (cst.state.data().mySeat == 'teacher'){
 			$(config.quit).click(function(e){
 				e.preventDefault();
@@ -53,11 +53,18 @@ cst.ui = (function ($) {
 				}
 			});
 		}
+		*/
 		
 		$(config.cancel).click(function(e){
 			e.preventDefault();
 			
 				if (confirm('This will discard any test data collected and return to the beginning.\n\nProceed?')){
+					var profiletask = -5;
+					var $go = $(config.go);
+					$go.hide();
+					var profiletask = -5;
+					cst.state.doJump(profiletask);
+					/*
 					if(cst.state.data().partnermode=='manual'){
 						var search = window.location.search;
 						search = search.replace("&seat=teacher", "");
@@ -67,6 +74,7 @@ cst.ui = (function ($) {
 						cst.state.clearOutput();
 						cst.test.initTestState(); 
 					}
+					*/
 				}
 			
 		});
@@ -223,13 +231,11 @@ cst.ui = (function ($) {
 				$thanks.find('#failDetail').html(cst.state.data().sendResponse).show();
 			}
 			
-			//profile slide = -5
-			var profiletask = -5;
 			if (state.myStatus() == 'sendSuccess' || state.theirStatus() == 'sendSuccess' ||  state.theirStatus() == 'sendFail'){
 				$('#reset').show().one('click', function(){
 					//cst.event.reset();
 					//document.location = './' + document.location.search;
-					cst.state.clearOutput();
+					var profiletask = -5;
 					cst.state.doJump(profiletask);
 				});
 			}
@@ -237,7 +243,7 @@ cst.ui = (function ($) {
 				$('#reset').show().one('click', function(){
 					if (confirm('Your data doesn\'t appear to have been saved to the server.  If you reset now it will be lost.  Is that ok?')){
 						//document.location = './' + document.location.search;
-						cst.state.clearOutput();
+						var profiletask = -5;
 						cst.state.doJump(profiletask);
 					}
 				});
@@ -327,7 +333,7 @@ cst.ui = (function ($) {
 		$(config.cancel).show();
 		$(config.restart).show();
 		if (seat == 'teacher'){
-			$(config.quit).show();
+			//$(config.quit).show();
 			$(config.swapRoles).show();
 		}
 		if(taskId > 0){
@@ -341,7 +347,7 @@ cst.ui = (function ($) {
 		$(config.cancel).hide();
 		$(config.restart).hide();
 		if (seat == 'teacher'){
-			$(config.quit).hide();
+			//$(config.quit).hide();
 		}
 		if(taskId > 0){
 			$(config.waiting).hide();
@@ -357,14 +363,14 @@ cst.ui = (function ($) {
 			$(config.cancel).show();
 			$(config.restart).show();
 			if (state.data().mySeat == 'teacher'){
-				$(config.quit).show();
+			//	$(config.quit).show();
 			}
 		}else{
 			$(config.instructions).hide();
 			$(config.cancel).hide();
 			$(config.restart).hide();
 			if (state.data().mySeat == 'teacher'){
-				$(config.quit).hide();
+				//$(config.quit).hide();
 			}
 		}
 		if(state.data().taskId > 0){
@@ -685,7 +691,10 @@ cst.ui = (function ($) {
 				});
 			}
 			startInstructions(taskId,cst.state.data().mySeat);
-			$(config.answers + ' .answeritem').one('click',takeAnswer);
+			//problem here is that if disabled the 'one' will kill subsequen clicks
+			//when enabled. Changed from one to on
+			//$(config.answers + ' .answeritem').one('click',takeAnswer);
+			$(config.answers + ' .answeritem').on('click',takeAnswer);
 			$(config.answers + ' .clickable').on('click',function(e){
 					if ($(this).hasClass('enabled')){
 						e.preventDefault();
@@ -717,6 +726,13 @@ cst.ui = (function ($) {
 			cst.state.takeAnswer(answerid);
 		});
 	};
+	
+	var doJump=function(newtaskid){
+		var $go = $(config.go);
+		$go.hide();
+		cst.state.clearOutput();
+		cst.state.doJump(newtaskid);	
+	}
 	
 	var doNext = function(){
 			cst.state.data('taskend',{taskEnd:cst.timer.getTime()});
@@ -767,6 +783,7 @@ cst.ui = (function ($) {
 		initGoButton: initGoButton,
 		doTakeAnswer: doTakeAnswer,
 		doNext: doNext,
+		doJump: doJump,
 		doSetSeat: doSetSeat,
 		doSetSession: doSetSession,
 		showWaiting: showWaiting,
