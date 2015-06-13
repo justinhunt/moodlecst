@@ -189,6 +189,12 @@ cst.tasks.choice = (function ($) {
 		if(idx===0){
 			var action =  mdata.clickedAnswerItem.split(':')[1];
 			cst.ui[action](mdata.clickedAnswerItemValue);
+			if(action=='doSetSession'){
+				//we return here rather than continue to "doNext" because
+				//other side needs to be updated before we move ...or it will get weird
+				//so we "doNext" over there in this case
+				return;
+			}
 		//set property
 		}else{
 				var propdata = {};
@@ -203,6 +209,11 @@ cst.tasks.choice = (function ($) {
 		if(mdata.clickedAnswerItem == 'action:doSetSeat'){
 			var newseat = cst.config.otherSeat(mdata.clickedAnswerItemValue.toTitleCase());
 			cst.ui.doSetSeat(newseat.toLowerCase());
+		}
+		if(mdata.clickedAnswerItem == 'action:doSetSession'){
+			var newsession = mdata.clickedAnswerItemValue;
+			cst.ui.doSetSession(newsession);
+			cst.ui.doNext();
 		}
 	};
 

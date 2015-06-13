@@ -16,6 +16,8 @@ taskend
 taskstart
 consentgiven
 beginclicked
+updateseat
+updatesession
 
 EVENT
 roomdetails
@@ -192,6 +194,49 @@ systeminit
 		messageCallbacks.fire(messagedata);
 	};
 	
+	var doJump = function(newtaskid){
+		var currentTask,
+			taskAnswer,
+			answer,
+			answer,
+			isCorrect,
+			currentTaskId;
+
+		currentTaskId=cst.state.data().taskId;
+
+		if(currentTaskId > 0){
+			currentTask  = cst.test.getTaskById();	
+			if (currentTask){
+				currentTaskId = currentTask.id;
+			}
+		}
+
+		
+		//set answered, for callbacks
+		if(currentTaskId !=0){
+			cst.state.data('answered',{sharedStat: 'answered'}, true);
+		}
+		
+		var task = cst.test.getTaskById(newtaskid);
+		console.log('newtaskid:' + newtaskid);
+		console.log('taskid:' + task.id);
+		if (task){
+			//push the state change
+			cst.state.data('newtask',{
+				previousTaskId: currentTaskId,
+				taskId: task.id,
+				sharedStat: 'taskStart',
+				studentStat: '',
+				teacherStat: '',
+				taskStart: 0,
+				taskEnd:0
+			});
+		}else{
+			sendResults();
+		}
+	
+	}
+	
 	var doNext = function(){
 		var currentTask,
 			taskAnswer,
@@ -211,7 +256,6 @@ systeminit
 		
 		//set answered, for callbacks
 		cst.state.data('answered',{sharedStat: 'answered'}, true);
-		//console.log(cst.test.session());
 		//move to next task
 	
 		var task = cst.test.nextTask();
@@ -264,7 +308,6 @@ systeminit
 		
 		//set answered, for callbacks
 		cst.state.data('answered',{sharedStat: 'answered'}, true);
-		//console.log(cst.test.session());
 		//move to next task
 		var task = cst.test.nextTask();
 		if (task){
@@ -382,6 +425,7 @@ systeminit
 		messageCallbacks: messageCallbacks,
 		takeAnswer: takeAnswer,
 		doNext: doNext,
+		doJump: doJump,
 		myHat: myHat,
 		uniqueId: uniqueId,
 		myStatus: myStatus,

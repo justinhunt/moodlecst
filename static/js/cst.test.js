@@ -35,7 +35,7 @@ cst.test = (function ($) {
 			throw "getTaskById called with " + qid + " but no task was found";
 		}
 	};
-	
+
 	
 	var nextTask = function(){
 

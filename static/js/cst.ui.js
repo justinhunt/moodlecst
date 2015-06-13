@@ -223,16 +223,22 @@ cst.ui = (function ($) {
 				$thanks.find('#failDetail').html(cst.state.data().sendResponse).show();
 			}
 			
+			//profile slide = -5
+			var profiletask = -5;
 			if (state.myStatus() == 'sendSuccess' || state.theirStatus() == 'sendSuccess' ||  state.theirStatus() == 'sendFail'){
 				$('#reset').show().one('click', function(){
-					cst.event.reset();
-					document.location = './' + document.location.search;
+					//cst.event.reset();
+					//document.location = './' + document.location.search;
+					cst.state.clearOutput();
+					cst.state.doJump(profiletask);
 				});
 			}
 			if (state.myStatus() == 'sendFail'){
 				$('#reset').show().one('click', function(){
 					if (confirm('Your data doesn\'t appear to have been saved to the server.  If you reset now it will be lost.  Is that ok?')){
-						document.location = './' + document.location.search;
+						//document.location = './' + document.location.search;
+						cst.state.clearOutput();
+						cst.state.doJump(profiletask);
 					}
 				});
 			}
@@ -726,6 +732,13 @@ cst.ui = (function ($) {
 		//console.log('updated seat:nowseat' + newseat + ':' + cst.state.data().mySeat);
 	};
 	
+	var doSetSession = function(newsessionid){
+		cst.state.messageCallbacks.empty();
+		var newsession = cst.config.sessions()[newsessionid];
+		cst.test.session(newsession);
+		cst.state.data('updatesession',{sessionId: newsessionid},true);
+	};
+	
 	var takeAnswer = function(e){
 		e.preventDefault();
 		if ($(this).hasClass('enabled')){
@@ -755,6 +768,7 @@ cst.ui = (function ($) {
 		doTakeAnswer: doTakeAnswer,
 		doNext: doNext,
 		doSetSeat: doSetSeat,
+		doSetSession: doSetSession,
 		showWaiting: showWaiting,
 		answersEnabled: answersEnabled,
 		working: working
