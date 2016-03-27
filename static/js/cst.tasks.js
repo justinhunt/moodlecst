@@ -432,21 +432,38 @@ cst.tasks.whowho = (function ($) {
 
 cst.tasks.taboo = (function ($) {
 	"use strict";
+	
+	// Private
+	var initAnswers = function($answers, qData, state){
+	
+		$(qData.answers).each(function(i, x){
+			$answers.append('<a class="answeritem" ' +
+				' href="javascript:;" data-id="' + x.id + '">' + x.text + '</a>');
+		});
+	
+	
 
+	
+//		$answers.append('<a class="answeritem" href="javascript:;" data-id="0">YES. I could answer.</a>');
+//		$answers.append('<a class="answeritem" href="javascript:;" data-id="1">NO. I could not answer</a>');
+	};
+	
 	var answerCallback = function(mdata){
 		$.each(mdata, function(propname, propvalue){
 			switch(propname){
 				case 'answersEnabled':
 					cst.ui.answersEnabled(true);
-				break;
+					break;
 			}
 		});
-	
 	};
+	
+	//var answerCallback = function(state){};
 	var questionCallback = function(state){};
 	
 	// Public
 	return { // { must be on same line as return else semicolon gets inserted
+		initAnswers: initAnswers,
 		answerCallback: answerCallback,
 		questionCallback: questionCallback
 	};

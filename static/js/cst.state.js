@@ -317,6 +317,12 @@ systeminit
 			sendResults();
 		}
 	};
+	
+	//reset the session if the reset button is pushed or the answers submitted
+	var resetOutput = function(){
+		output=[];
+	};
+	
 	//params eg = {type: 'partnerdetails', userId: '13'}
 	//returned data = {type: 'partnerdetails', userName: 'Bob Jones', userPic: 'http://path.to.pic'}
 	
@@ -354,6 +360,8 @@ systeminit
 	
 	var sendResults = function(){
 	
+		var finalResults = output;
+		
 		cst.state.data('resetsession',{
 			taskId: 0,
 			sharedStat: 'done',
@@ -361,11 +369,12 @@ systeminit
 			teacherStat: '',
 			taskStart: 0,
 			taskEnd:0,
-			finalResults: output
+			finalResults: finalResults
 		});
 		
+		console.log(finalResults);
+		//debugger;
 		
-		debugger;
 		//url: cst.config.options().moodleUrl + '/mod/moodlecst/jsonresults.php',
 		//could use cst.url().moodleurl in manual partner select (cos was passed in by form)
 		var moodleurl = $('#moodleurl').attr('value');
@@ -373,7 +382,7 @@ systeminit
 			type: 'POST',
 			url: moodleurl + '/mod/moodlecst/jsonresults.php',
 			data: { 
-				'results' : JSON.stringify(output),
+				'results' : JSON.stringify(finalResults),
 				'sesskey': data.sesskey,
 				'userid' : data.userId,
 				'id' : data.activityId
@@ -384,6 +393,7 @@ systeminit
 			success: function(data, textStatus, jqXHR){ 
 				cst.state.myStatus('sendSuccess');
 				cst.state.data('sendsuccess',{sendResponse: data });
+				cst.state.resetOutput();
 			},
 			error: function(jqXHR, textStatus, errorThrown){
 				cst.state.myStatus('sendFail');
@@ -426,6 +436,7 @@ systeminit
 		isStatus: isStatus,
 		clearOutput: clearOutput,
 		getOutput: getOutput,
+		resetOutput: resetOutput,
 		emergencySync: emergencySync,
 		fireMessage: fireMessage,
 		sendMessage: sendMessage

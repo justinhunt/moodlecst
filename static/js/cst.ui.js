@@ -63,6 +63,7 @@ cst.ui = (function ($) {
 					var $go = $(config.go);
 					$go.hide();
 					var profiletask = -5;
+					cst.state.resetOutput();
 					cst.state.doJump(profiletask);
 					/*
 					if(cst.state.data().partnermode=='manual'){
@@ -81,6 +82,7 @@ cst.ui = (function ($) {
 		
 		$(config.restart).click(function(e){
 			e.preventDefault();
+			cst.state.resetOutput();
 			cst.state.data('newtask',{sharedStat: "taskStart", taskStart: 0});
 		});
 		
@@ -245,6 +247,7 @@ cst.ui = (function ($) {
 					if (confirm('Your data doesn\'t appear to have been saved to the server.  If you reset now it will be lost.  Is that ok?')){
 						//document.location = './' + document.location.search;
 						var profiletask = -5;
+						cst.state.resetOutput();
 						cst.state.doJump(profiletask);
 					}
 				});
@@ -272,7 +275,7 @@ cst.ui = (function ($) {
 				}
 			}
 		);
-		debugger;
+		//debugger;
 		returnhtml +='Total Time: ' + cst.timer.fetchSecondsDisplay(totaltime/1000) + '<br/>';
 		returnhtml +='Total Correct: ' + totalcorrect + '/' + totalq; 
 		return returnhtml;
@@ -580,11 +583,11 @@ cst.ui = (function ($) {
 	var initQuestionTimerDiv = function(state){
 		//if not initing task, return without doing anything
 		if(!(state.data().dataEvent =='initteststate' || state.data().dataEvent =='taskend')){
-			debugger;
+			//debugger;
 			console.log('exiting on ' +  state.data().dataEvent );
 			return;
 		}else{
-			debugger;
+			//debugger;
 			console.log('entering on ' +  state.data().dataEvent );
 		}
 		var $questiontimer = $(config.questiontimer);
