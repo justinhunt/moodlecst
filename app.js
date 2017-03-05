@@ -27,7 +27,7 @@ var handler = function(req, res){};
 webserver.get("/", function(req, res){
 	res.render(__dirname + '/views/index.ejs', {
 		layout:false,
-		moodle: {sesskey: req.param('sesskey'), activityid: req.param('activityid'), socketport: config.socketServerPort, moodleurl: config.moodleUrl, userid: req.param('userid'), mode: req.param('mode'), seat: req.param('seat'), partnermode: req.param('partnermode')},
+		moodle: {sesskey: req.param('sesskey'), activityid: req.param('activityid'), socketport: config.socketServerPort, moodleurl: config.moodleUrl, userid: req.param('userid'), mode: req.param('mode'), seat: req.param('seat'), partnermode: req.param('partnermode'), ucatenabled: req.param('ucatenabled')},
 		locals: { cacheKey: '?t=' + (new Date()).getTime() }
 	});
 });

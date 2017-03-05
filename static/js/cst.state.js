@@ -73,7 +73,8 @@ systeminit
 			mode: 'teacherstudent',
 			partnermode: 'manual',
 			clickedAnswerItem: '',
-			clickedQuestionItem: ''
+			clickedQuestionItem: '',
+			ability: 0
 		},
 		output = [],
 		callbacks = $.Callbacks('unique'),
@@ -98,7 +99,8 @@ systeminit
 			beginClicked: data.beginClicked,
 			clickedAnswerItem: data.clickedAnswerItem,
 			clickedQuestionItem: data.clickedQuestionItem,
-			finalResults: data.finalResults
+			finalResults: data.finalResults,
+            ability: data.ability
 		};
 	};
 	
@@ -249,22 +251,21 @@ systeminit
 		//set answered, for callbacks
 		cst.state.data('answered',{sharedStat: 'answered'}, true);
 		//move to next task
-	
-		var task = cst.test.nextTask();
-		if (task){
-			//push the state change
-			cst.state.data('newtask',{
-				previousTaskId: currentTaskId,
-				taskId: task.id,
-				sharedStat: 'taskStart',
-				studentStat: '',
-				teacherStat: '',
-				taskStart: 0,
-				taskEnd:0
-			});
-		}else{
-			sendResults();
-		}
+
+         cst.test.nextTask(function(task){
+                //push the state change
+                cst.state.data('newtask', {
+                    previousTaskId: currentTaskId,
+                    taskId: task.id,
+                    sharedStat: 'taskStart',
+                    studentStat: '',
+                    teacherStat: '',
+                    taskStart: 0,
+                    taskEnd: 0
+                });
+
+            },sendResults);
+
 	};
 	
 	var takeAnswer = function(answerId){
@@ -300,22 +301,21 @@ systeminit
 		
 		//set answered, for callbacks
 		cst.state.data('answered',{sharedStat: 'answered'}, true);
+
 		//move to next task
-		var task = cst.test.nextTask();
-		if (task){
-			//push the state change
-			cst.state.data('newtask',{
-				previousTaskId: currentTaskId,
-				taskId: task.id,
-				sharedStat: 'taskStart',
-				studentStat: '',
-				teacherStat: '',
-				taskStart: 0,
-				taskEnd:0
-			});
-		}else{
-			sendResults();
-		}
+        cst.test.nextTask(function(task){
+            //push the state change
+            cst.state.data('newtask', {
+                previousTaskId: currentTaskId,
+                taskId: task.id,
+                sharedStat: 'taskStart',
+                studentStat: '',
+                teacherStat: '',
+                taskStart: 0,
+                taskEnd: 0
+            });
+
+        },sendResults);
 	};
 	
 	//reset the session if the reset button is pushed or the answers submitted
@@ -333,6 +333,7 @@ systeminit
 		if(!fetchparams.hasOwnProperty('id')){
 			fetchparams.id = data.activityId;
 		}
+
 		
 		//could use cst.url().moodleurl in manual partner select (cos was passed in by form)
 		var moodleurl = $('#moodleurl').attr('value');
@@ -356,7 +357,9 @@ systeminit
 			},
 			dataType: 'json'
 		});
-	}
+	};
+
+
 	
 	var sendResults = function(){
 	
@@ -372,7 +375,7 @@ systeminit
 			finalResults: finalResults
 		});
 		
-		console.log(finalResults);
+		//console.log(finalResults);
 		//debugger;
 		
 		//url: cst.config.options().moodleUrl + '/mod/moodlecst/jsonresults.php',
@@ -392,7 +395,7 @@ systeminit
 			},
 			success: function(data, textStatus, jqXHR){ 
 				cst.state.myStatus('sendSuccess');
-				cst.state.data('sendsuccess',{sendResponse: data });
+				cst.state.data('sendsuccess',{ability: data.ability, sendResponse: data });
 				cst.state.resetOutput();
 			},
 			error: function(jqXHR, textStatus, errorThrown){

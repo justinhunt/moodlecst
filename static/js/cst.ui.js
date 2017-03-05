@@ -210,7 +210,7 @@ cst.ui = (function ($) {
 			$thanks.find('#failDetail').html('');
 			$thanks.find('#successDetail').html('');
 			$thanks.find('.sessionResults').html('');
-			$thanks.find('.sessionResults').html(prepareResultsForDisplay(cst.state.data().finalResults));
+			$thanks.find('.sessionResults').html(prepareResultsForDisplay(cst.state.data().finalResults,cst.state.data().ability));
 			
 			
 			if (state.myStatus() == 'sending'){
@@ -227,10 +227,12 @@ cst.ui = (function ($) {
 						)
 					).show();
 				}
+
 			}
+
 			if (state.myStatus() == 'sendFail'){
 				$thanks.find('#sendFail').show();
-				$thanks.find('.sessionResults').html(prepareResultsForDisplay(cst.state.data().finalResults));
+				$thanks.find('.sessionResults').html(prepareResultsForDisplay(cst.state.data().finalResults),cst.state.data().ability);
 				$thanks.find('#failDetail').html(cst.state.data().sendResponse).show();
 			}
 			
@@ -262,11 +264,12 @@ cst.ui = (function ($) {
 		}
 	};
 	
-	var prepareResultsForDisplay = function(output){
+	var prepareResultsForDisplay = function(output,ability){
 		var returnhtml = '';
 		var totaltime = 0;
 		var totalq=0;
 		var totalcorrect=0;
+
 		$.each(output,function(i,answer){
 				if(answer.slidepairid > 0){
 					totaltime += answer.duration;
@@ -275,9 +278,16 @@ cst.ui = (function ($) {
 				}
 			}
 		);
-		//debugger;
+
 		returnhtml +='Total Time: ' + cst.timer.fetchSecondsDisplay(totaltime/1000) + '<br/>';
-		returnhtml +='Total Correct: ' + totalcorrect + '/' + totalq; 
+		returnhtml +='Total Correct: ' + totalcorrect + '/' + totalq;
+
+		//if in ucat mode
+        var isucat= $('#ucatenabled').attr('value');
+        if(isucat=='1') {
+            returnhtml += '<br/>UCAT Ability: ' +  ability;
+        }
+
 		return returnhtml;
 	
 	};

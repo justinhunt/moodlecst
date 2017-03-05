@@ -277,12 +277,16 @@ div.profile img{
 #thanks #sendSuccess{
 	color: #37F72D;
 }
+
+#thanks #successDetail{
+	color: #00F0F0;
+}
+
 #thanks #sendFail{
 	color: #F00;
 }
 
-#thanks #diagnostic, 
-#thanks #successDetail,
+#thanks #diagnostic,
 #thanks #failDetail{
 	font-size: .5em;
 }
